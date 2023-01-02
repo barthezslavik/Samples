@@ -1,62 +1,62 @@
 import pygame
 import math
-import random
 
-# Constants
-GRAVITY = 9.81  # m/s^2
-MASS_PENDULUM = 1.0  # kg
-LENGTH_PENDULUM = 1.0  # m
-DAMPING = 0.1  # N*s/m
-DT = 0.01  # s
-
-# Initialize Pygame
+# Set up the Pygame window
+WIDTH = 800
+HEIGHT = 600
 pygame.init()
-
-# Set up the display
-width, height = 640, 480
-screen = pygame.display.set_mode((width, height))
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
 # Set up the pendulum
-x = width / 2
-y = height / 2
-angle = math.pi / 2
-angular_velocity = 0.0
+L = 200  # Length of the pendulum
+theta = math.pi / 4  # Angle of the pendulum
+omega = 0  # Angular velocity of the pendulum
 
-# Set up the entropic force
-entropic_force = 0.0
+# Set up the simulation parameters
+dt = 1  # Time step
+g = 9.81  # Acceleration due to gravity
+K = 0.1  # Entropic force coefficient
+T = 10  # Time horizon
 
-# Set up the clock
-clock = pygame.time.Clock()
+# Set up the pivot point
+pivot_x = WIDTH / 2
+pivot_y = HEIGHT / 2
 
-# Main loop
-while True:
+# Run the simulation
+running = True
+while running:
     # Handle events
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
+            running = False
 
-    # Update the entropic force
-    entropic_force = random.uniform(-1.0, 1.0)
+    # Calculate the expected future position of the pendulum
+    x_future = pivot_x + L * math.sin(theta + omega * T)
+    y_future = pivot_y + L * math.cos(theta + omega * T)
 
-    # Update the angular velocity and angle
-    angular_acceleration = -GRAVITY / LENGTH_PENDULUM * math.sin(angle) - DAMPING * angular_velocity + entropic_force
-    angular_velocity += angular_acceleration * DT
-    angle += angular_velocity * DT
+    # Calculate the entropic force towards the expected future position
+    dx = x_future - pivot_x
+    dy = y_future - pivot_y
+    r = math.sqrt(dx**2 + dy**2)
+    Fx = K * dx / r
+    Fy = K * dy / r
 
-    # Update the position of the pendulum
-    x = width / 2 + LENGTH_PENDULUM * math.sin(angle)
-    y = height / 2 + LENGTH_PENDULUM * math.cos(angle)
-
-    # Clear the screen
-    screen.fill((255, 255, 255))
+    # Calculate the acceleration of the pendulum
+    alpha = (Fx * math.cos(theta) + Fy * math.sin(theta)) / L
+    # Update the angular velocity of the pendulum
+    omega += alpha * dt
+    # Update the angle of the pendulum
+    theta += omega * dt
 
     # Draw the pendulum
+    screen.fill((255, 255, 255))
+    x = pivot_x + L * math.sin(theta)
+    y = pivot_y + L * math.cos(theta)
+    pygame.draw.line(screen, (0, 0, 0), (pivot_x, pivot_y), (x, y), 5)
     pygame.draw.circle(screen, (0, 0, 0), (int(x), int(y)), 10)
-    pygame.draw.line(screen, (0, 0, 0), (width / 2, height / 2), (int(x), int(y)))
 
     # Update the display
     pygame.display.flip()
 
-    # Delay to maintain a constant frame rate
-    clock.tick(60)
+# Shut down Pygame
+pygame.quit()
