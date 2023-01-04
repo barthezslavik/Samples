@@ -2,7 +2,7 @@ import pygame
 import numpy as np
 
 # Constants
-MASS = 1e-21  # particle mass
+MASS = 100  # particle mass
 L = 400  # width of box
 L_OVER_5 = L / 5  # height of box
 TAU = 10  # causal entropic force parameter
@@ -19,7 +19,7 @@ pygame.display.set_caption("Particle in a Box")
 
 # Initialize particle position and momentum
 position = np.array([L / 10, L_OVER_5 / 10])
-momentum = np.array([0, 0])
+momentum = np.array([0, 0], dtype=np.float64)
 
 # Main loop
 running = True
@@ -39,7 +39,6 @@ while running:
 
     # Calculate total force
     total_force = energetic_force + random_force + causal_entropic_force
-    # print(total_force * TIMESTEP)
 
     # Update momentum
     momentum += total_force * TIMESTEP
@@ -56,8 +55,8 @@ while running:
     # Fill screen with white
     screen.fill((255, 255, 255))
 
-    # Draw particle as white fill with black border
-    pygame.draw.circle(screen, (0, 0, 0), position.astype(int), 5, 5)
+    # Draw particle
+    pygame.draw.circle(screen, (0, 0, 0), position.astype(int), 2)
 
     pygame.display.flip()
 
