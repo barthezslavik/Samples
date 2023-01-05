@@ -13,6 +13,9 @@ TIMESTEP = 0.025  # time step for simulation
 # Initialize Pygame
 pygame.init()
 
+# Create a Clock object to control the frame rate
+clock = pygame.time.Clock()
+
 # Set up screen
 screen = pygame.display.set_mode((L, L_OVER_5))
 pygame.display.set_caption("Particle in a Box")
@@ -20,6 +23,9 @@ pygame.display.set_caption("Particle in a Box")
 # Initialize particle position and momentum
 position = np.array([L / 10, L_OVER_5 / 10])
 momentum = np.array([0, 0], dtype=np.float64)
+
+# Set up font for displaying text
+font = pygame.font.Font(None, 20)
 
 # Main loop
 running = True
@@ -33,9 +39,15 @@ while running:
 
     # Calculate random force components
     random_force = np.random.normal(0, np.sqrt(MASS * T_R / TIMESTEP), size=2)
+    # random_force[1] = 0
 
     # Calculate causal entropic force components
-    causal_entropic_force = np.random.normal(0, np.sqrt(T_C / TIMESTEP), size=2)
+    # causal_entropic_force = np.random.normal(0, np.sqrt(T_C / TIMESTEP), size=2)
+
+    # Calculate causal entropic force
+    s = -(x**2 + v**2) / (2 * T_R)  # entropy of system
+    grad_s = np.array([-x, -v])  # gradient of entropy
+    causal_entropic_force = T_R * grad_s / TAU
 
     # Calculate total force
     total_force = energetic_force + random_force + causal_entropic_force
@@ -55,10 +67,17 @@ while running:
     # Fill screen with white
     screen.fill((255, 255, 255))
 
+    causal = font.render(str(causal_entropic_force), True, (0, 0, 0))
+    screen.blit(causal, (10, 10))
+
+    random = font.render(str(random_force), True, (0, 0, 0))
+    screen.blit(random, (10, 30))
+
     # Draw particle
     pygame.draw.circle(screen, (0, 0, 0), position.astype(int), 2)
 
     pygame.display.flip()
+    clock.tick(10)
 
 # Quit Pygame
 pygame.quit()
