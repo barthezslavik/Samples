@@ -4,7 +4,7 @@ import numpy as np
 # Constants
 WIDTH = 800  # width of screen
 HEIGHT = 600  # height of screen
-MASS = 10  # mass of car
+MASS = 1  # mass of car
 TAU = 10  # causal entropic force parameter
 T_R = 4e5  # temperature of heat reservoir
 T_C = 5 * T_R  # scaling factor for magnitude of causal entropic force
@@ -12,6 +12,9 @@ TIMESTEP = 0.1  # time step for simulation
 
 # Initialize Pygame
 pygame.init()
+
+# Create a Clock object to control the frame rate
+clock = pygame.time.Clock()
 
 # Set up screen
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -71,3 +74,7 @@ while running:
     pygame.draw.rect(screen, (0, 0, 0), (position[0] - car_width / 2, position[1] - car_height / 2, car_width, car_height))
 
     pygame.display.flip()
+    clock.tick(10)
+
+# Quit Pygame
+pygame.quit()
