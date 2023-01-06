@@ -11,12 +11,6 @@ X, Y = np.meshgrid(np.linspace(-1, 1, 20), np.linspace(-1, 1, 30))
 F_x = -X / T_R  # x-component of gradient
 F_y = -Y / T_R  # y-component of gradient
 
-# Set forbidden regions to 0
-F_x[X < 0] = 0
-F_y[X < 0] = 0
-F_x[X > 10] = 0
-F_y[X > 10] = 0
-
 # Visualize gradient
 plt.quiver(X, Y, F_x, F_y)
 plt.show()
