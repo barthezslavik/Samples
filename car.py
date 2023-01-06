@@ -38,7 +38,7 @@ while running:
     random_force = np.random.normal(0, np.sqrt(MASS * T_R / TIMESTEP), size=2)
 
     # Calculate causal entropic force components
-    s = -(position**2 + velocity**2).sum() / (2 * T_R)  # entropy of system
+    # s = -(position**2 + velocity**2).sum() / (2 * T_R)  # entropy of system
     grad_s = -position / T_R  # gradient of entropy
     causal_entropic_force = T_R * grad_s / TAU
 
