@@ -1,6 +1,5 @@
 import pygame
-import random
-import math
+import numpy as np
 
 # Set up the Pygame window
 WIDTH = 800
@@ -8,22 +7,26 @@ HEIGHT = 600
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
-# Set up the particle
-x = random.uniform(0, WIDTH)
-y = random.uniform(0, HEIGHT)
-vx = random.uniform(-100, 100)
-vy = random.uniform(-100, 100)
+T_R = 4e5  # temperature of heat reservoir
+T_C = 5 * T_R  # scaling factor for magnitude of causal entropic force
 
-# Set up the simulation parameters
-dt = 0.1  # Time step
-T = 10  # Time horizon
-K = 0.1  # Entropic force coefficient
+# Set up grid
+X, Y = np.meshgrid(np.linspace(-WIDTH/2, WIDTH/2, 30), np.linspace(-HEIGHT/2, HEIGHT/2, 30))
 
-# Set up the boundaries of the box
-left = 0
-right = WIDTH
-top = 0
-bottom = HEIGHT
+# Calculate gradient of causal entropic force
+F_x = -X / T_R  # x-component of gradient
+F_y = -Y / T_R  # y-component of gradient
+
+# Initialize particle position and velocity
+position = np.array([np.random.choice(X.flatten()), np.random.choice(Y.flatten())])
+
+# Calculate interpolated values of F_x and F_y at current position
+F_x_interp = np.interp(position[0], X[0,:], F_x[:,0])
+F_y_interp = np.interp(position[1], Y[:,0], F_y[0,:])
+
+# Set velocity based on interpolated values
+velocity = np.array([F_x_interp, F_y_interp])
+n = 0
 
 # Run the simulation
 running = True
@@ -33,41 +36,23 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    # Calculate the expected future position of the particle
-    x_future = x + vx * T
-    y_future = y + vy * T
+    # Update position
+    position += velocity
 
-    # Calculate the entropic force towards the expected future position
-    dx = x_future - x
-    dy = y_future - y
-    r = math.sqrt(dx**2 + dy**2)
-    Fx = K * dx / r
-    Fy = K * dy / r
+    # Find indices of closest known x- and y-values
+    i_x = np.where(X[0,:] <= position[0])[0][-1]
+    i_y = np.where(Y[:,0] <= position[1])[0][-1]
 
-    # Update the velocity of the particle
-    vx += Fx * dt
-    vy += Fy * dt
-    # Update the position of the particle
-    x += vx * dt
-    y += vy * dt
-
-    # Check for collisions with the boundaries of the box
-    if x < left:
-        x = left
-        vx = -vx
-    elif x > right:
-        x = right
-        vx = -vx
-    if y < top:
-        y = top
-        vy = -vy
-    elif y > bottom:
-        y = bottom
-        vy = -vy
+    # Set velocity based on known F_x and F_y values
+    velocity = np.array([F_x[i_y, i_x], F_y[i_y, i_x]]) * 1000
 
     # Draw the particle
     screen.fill((255, 255, 255))
-    pygame.draw.circle(screen, (0, 0, 0), (int(x), int(y)), 20)
+    pygame.draw.circle(screen, (0, 0, 0), (int(position[0] + WIDTH/2), int(position[1] + HEIGHT/2)), 5)
+
+    # Visualize gradient
+    # for x, y, f_x, f_y in zip(X.flatten(), Y.flatten(), F_x.flatten(), F_y.flatten()):
+    #    pygame.draw.line(screen, (0, 0, 0), (x + WIDTH/2, y + HEIGHT/2), (x + f_x + WIDTH/2, y + f_y + HEIGHT/2))
 
     # Update the display
     pygame.display.flip()
