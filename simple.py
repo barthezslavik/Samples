@@ -1,43 +1,34 @@
 import numpy as np
 
 # Constants
-MASS = 1  # mass of particle (kg)
-K = 1  # spring constant (N/m)
-L = 1  # width of box (m)
-TAU = 1  # time scale (s)
-T_R = 300  # temperature of reservoir (K)
-TIMESTEP = 0.01  # time step for simulation (s)
+MASS = 100  # particle mass
+T_R = 4e5  # temperature of heat reservoir
+T_C = 5 * T_R  # scaling factor for magnitude of causal entropic force
+TAU = 10  # causal entropic force parameter
+TIMESTEP = 0.025  # time step for simulation
 
-# Initialize position and velocity
-x = 0.5  # initial position (m)
-v = 0.0  # initial velocity (m/s)
+# Initialize position and momentum
+position = np.array([0, 0], dtype=np.float64)
+momentum = np.array([0, 0], dtype=np.float64)
 
 # Main loop
-for t in range(10000):
-    # Calculate energetic force
-    energetic_force = -K * x
+for t in range(1000):
+    # print("===============================================", t)
+    # Calculate causal entropic force
+    s = -(position**2 + momentum**2) / (2 * T_R)  # entropy of system
+    grad_s = np.array([-position, -momentum])  # gradient of entropy
+    causal_entropic_force = T_R * grad_s / TAU
+    # print("causal_entropic_force", causal_entropic_force)
 
     # Calculate random force
-    random_force = np.random.normal(0, np.sqrt(MASS * T_R * TIMESTEP))
-
-    # Calculate causal entropic force
-    s = -(x**2 + v**2) / (2 * T_R)  # entropy of system
-    grad_s = np.array([-x, -v])  # gradient of entropy
-    causal_entropic_force = T_R * grad_s / TAU
+    random_force = np.random.normal(0, np.sqrt(2 * MASS * T_R * TIMESTEP), size=2)
+    # print("random_force", random_force)
 
     # Calculate total force
-    total_force = energetic_force + random_force + causal_entropic_force
+    total_force = causal_entropic_force[0] + random_force[0]
 
-    # print(total_force)
-    # Update velocity
-    v += total_force# / MASS * TIMESTEP
-
-    # Update position
-    x += v * TIMESTEP
-
-    # Check for collision with walls
-    # if (x < 0) or (x > L):
-    #    v *= -1
-
-    # Print position and velocity
-    print(f"t = {t * TIMESTEP:.2f}, x = {x:.2f}, v = {v:.2f}")
+    # print("momentum", momentum, "mass", MASS, "timestamp", TIMESTEP, "total_force", total_force[0])
+    # Update position and momentum
+    position += (momentum / MASS) * TIMESTEP + (total_force / MASS) * TIMESTEP**2 / 2
+    momentum += total_force * TIMESTEP
+    print("position", position, "momentum", momentum)

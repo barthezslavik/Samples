@@ -39,18 +39,15 @@ while running:
 
     # Calculate random force components
     random_force = np.random.normal(0, np.sqrt(MASS * T_R / TIMESTEP), size=2)
-    # random_force[1] = 0
 
     # Calculate causal entropic force components
     # causal_entropic_force = np.random.normal(0, np.sqrt(T_C / TIMESTEP), size=2)
-
-    # Calculate causal entropic force
-    s = -(x**2 + v**2) / (2 * T_R)  # entropy of system
-    grad_s = np.array([-x, -v])  # gradient of entropy
+    s = -(position**2 + momentum**2) / (2 * T_R)  # entropy of system
+    grad_s = np.array([-position, -momentum])  # gradient of entropy
     causal_entropic_force = T_R * grad_s / TAU
 
     # Calculate total force
-    total_force = energetic_force + random_force + causal_entropic_force
+    total_force = energetic_force + random_force + causal_entropic_force[0]
 
     # Update momentum
     momentum += total_force * TIMESTEP
@@ -68,10 +65,10 @@ while running:
     screen.fill((255, 255, 255))
 
     causal = font.render(str(causal_entropic_force), True, (0, 0, 0))
-    screen.blit(causal, (10, 10))
+    # screen.blit(causal, (10, 10))
 
     random = font.render(str(random_force), True, (0, 0, 0))
-    screen.blit(random, (10, 30))
+    # screen.blit(random, (10, 30))
 
     # Draw particle
     pygame.draw.circle(screen, (0, 0, 0), position.astype(int), 2)
