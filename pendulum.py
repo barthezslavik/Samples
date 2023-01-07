@@ -26,8 +26,9 @@ g = 9.81  # gravitational acceleration
 dt = 0.1  # time step
 
 # Initialize pendulum position and velocity
-theta = np.pi / 4  # initial angle of pendulum
+theta = np.pi / 6  # initial angle of pendulum
 omega = 0  # initial angular velocity
+pivot_position = np.array([0, 0]) # initial position of pivot point
 
 # Main loop
 running = True
@@ -49,18 +50,39 @@ while running:
     theta += omega * dt
 
     # Calculate interpolated values of F_x and F_y at current position
-    F_x_interp = np.interp(theta, X[0,:], F_x[:,0])
-    F_y_interp = np.interp(theta, Y[:,0], F_y[0,:])
+    # F_x_interp = np.interp(theta, X[0,:], F_x[:,0])
+    # F_y_interp = np.interp(theta, Y[:,0], F_y[0,:])
     # Set velocity based on interpolated values
-    velocity = np.array([F_x_interp, F_y_interp]) * 1000
+    # velocity = np.array([F_x_interp, F_y_interp]) * 1000
+
+    # Calculate force at pivot point
+    F_x_interp = np.interp(pivot_position[0], X[0,:], F_x[:,0])
+    F_y_interp = np.interp(pivot_position[1], Y[:,0], F_y[0,:])
+
+    F_pivot = np.array([F_x_interp, F_y_interp])
+    print(F_pivot)
+
+    # Update pivot position
+    pivot_position += 2#F_pivot * dt
+
+    # Calculate position of pendulum bob
+    x = L * np.sin(theta) + pivot_position[0]
+    y = L * np.cos(theta) + pivot_position[1]
+
+    # Update the display
+    pygame.display.flip()
 
     # Update position
-    position = np.array([L * np.sin(theta), L * np.cos(theta)])
+    #position = np.array([L * np.sin(theta), L * np.cos(theta)])
 
     # Draw the pendulum
     screen.fill((255, 255, 255))
-    pygame.draw.line(screen, (0, 0, 0), (WIDTH/2, HEIGHT/2), (WIDTH/2 + position[0], HEIGHT/2 + position[1]), 1)
-    pygame.draw.circle(screen, (0, 0, 0), (int(WIDTH/2 + position[0]), int(HEIGHT/2 + position[1])), 5)
+    #pygame.draw.line(screen, (0, 0, 0), (WIDTH/2, HEIGHT/2), (WIDTH/2 + position[0], HEIGHT/2 + position[1]), 1)
+    #pygame.draw.circle(screen, (0, 0, 0), (int(WIDTH/2 + position[0]), int(HEIGHT/2 + position[1])), 5)
+
+    # Draw the pendulum
+    pygame.draw.line(screen, (0, 0, 0), pivot_position, (x, y), 5)
+    pygame.draw.circle(screen, (0, 0, 0), (int(x), int(y)), 20)
 
     # Update the display
     pygame.display.flip()
