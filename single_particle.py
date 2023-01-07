@@ -26,7 +26,6 @@ F_y_interp = np.interp(position[1], Y[:,0], F_y[0,:])
 
 # Set velocity based on interpolated values
 velocity = np.array([F_x_interp, F_y_interp])
-n = 0
 
 # Run the simulation
 running = True
