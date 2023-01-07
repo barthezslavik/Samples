@@ -50,10 +50,6 @@ while running:
     screen.fill((255, 255, 255))
     pygame.draw.circle(screen, (0, 0, 0), (int(position[0] + WIDTH/2), int(position[1] + HEIGHT/2)), 5)
 
-    # Visualize gradient
-    # for x, y, f_x, f_y in zip(X.flatten(), Y.flatten(), F_x.flatten(), F_y.flatten()):
-    #    pygame.draw.line(screen, (0, 0, 0), (x + WIDTH/2, y + HEIGHT/2), (x + f_x + WIDTH/2, y + f_y + HEIGHT/2))
-
     # Update the display
     pygame.display.flip()
 
