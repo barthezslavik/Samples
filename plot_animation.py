@@ -18,7 +18,7 @@ Q = ax.quiver(X, Y, np.zeros_like(X), np.zeros_like(Y))
 def update(i):
     # Calculate gradient of causal entropic force
     F_x = -X / T_R * np.cos(i * np.pi / 10)  # x-component of gradient
-    F_y = -Y / T_R * np.sin(i * np.pi / 10)  # y-component of gradient
+    F_y = -Y / T_R # * np.sin(i * np.pi / 10)  # y-component of gradient
 
     # Update the quiver plot
     Q.set_UVC(F_x, F_y)
