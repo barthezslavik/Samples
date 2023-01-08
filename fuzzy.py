@@ -4,7 +4,9 @@ from skfuzzy import control as ctrl
 
 # Define the fuzzy variables
 score = ctrl.Antecedent(np.arange(0, 11, 1), 'score')
+# print(score)
 win_prob = ctrl.Consequent(np.arange(0, 101, 1), 'win_prob')
+# print(win_prob)
 
 # Define the fuzzy membership functions
 score['low'] = fuzz.trimf(score.universe, [0, 0, 5])
@@ -30,7 +32,7 @@ win_prob_ctrl = ctrl.ControlSystem([rule1, rule2, rule3, rule4, rule5, rule6, ru
 win_prob_sim = ctrl.ControlSystemSimulation(win_prob_ctrl)
 
 # Input the values for score
-win_prob_sim.input['score'] = 7
+win_prob_sim.input['score'] = 10
 
 # Compute the output
 win_prob_sim.compute()
