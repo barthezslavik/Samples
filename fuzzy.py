@@ -2,40 +2,42 @@ import numpy as np
 import skfuzzy as fuzz
 from skfuzzy import control as ctrl
 
-# Define the fuzzy variables
-score = ctrl.Antecedent(np.arange(0, 11, 1), 'score')
-# print(score)
-win_prob = ctrl.Consequent(np.arange(0, 101, 1), 'win_prob')
-# print(win_prob)
+# Define the input and output variables
+temperature = ctrl.Antecedent(np.arange(-20, 41, 1), 'temperature')
+humidity = ctrl.Antecedent(np.arange(0, 101, 1), 'humidity')
+comfort = ctrl.Consequent(np.arange(-20, 41, 1), 'comfort')
 
-# Define the fuzzy membership functions
-score['low'] = fuzz.trimf(score.universe, [0, 0, 5])
-score['medium'] = fuzz.trimf(score.universe, [0, 5, 10])
-score['high'] = fuzz.trimf(score.universe, [5, 10, 10])
-win_prob['low'] = fuzz.trimf(win_prob.universe, [0, 0, 50])
-win_prob['medium'] = fuzz.trimf(win_prob.universe, [0, 50, 100])
-win_prob['high'] = fuzz.trimf(win_prob.universe, [50, 100, 100])
+# Define the membership functions for the input variables
+temperature['cold'] = fuzz.trimf(temperature.universe, [-20, -20, 0])
+temperature['cool'] = fuzz.trimf(temperature.universe, [-20, 0, 20])
+temperature['warm'] = fuzz.trimf(temperature.universe, [0, 20, 40])
+temperature['hot'] = fuzz.trimf(temperature.universe, [20, 40, 40])
+humidity['dry'] = fuzz.trimf(humidity.universe, [0, 0, 50])
+humidity['comfortable'] = fuzz.trimf(humidity.universe, [0, 50, 100])
+humidity['humid'] = fuzz.trimf(humidity.universe, [50, 100, 100])
+
+# Define the membership functions for the output variable
+comfort['uncomfortable'] = fuzz.trimf(comfort.universe, [-20, -20, 0])
+comfort['moderate'] = fuzz.trimf(comfort.universe, [-20, 0, 20])
+comfort['comfortable'] = fuzz.trimf(comfort.universe, [0, 20, 40])
 
 # Define the fuzzy rules
-rule1 = ctrl.Rule(score['low'] & score['low'], win_prob['low'])
-rule2 = ctrl.Rule(score['low'] & score['medium'], win_prob['medium'])
-rule3 = ctrl.Rule(score['low'] & score['high'], win_prob['high'])
-rule4 = ctrl.Rule(score['medium'] & score['low'], win_prob['medium'])
-rule5 = ctrl.Rule(score['medium'] & score['medium'], win_prob['medium'])
-rule6 = ctrl.Rule(score['medium'] & score['high'], win_prob['high'])
-rule7 = ctrl.Rule(score['high'] & score['low'], win_prob['high'])
-rule8 = ctrl.Rule(score['high'] & score['medium'], win_prob['high'])
-rule9 = ctrl.Rule(score['high'] & score['high'], win_prob['high'])
+rule1 = ctrl.Rule(temperature['cold'] & humidity['humid'], comfort['uncomfortable'])
+rule2 = ctrl.Rule(temperature['cool'] & humidity['comfortable'], comfort['moderate'])
+rule3 = ctrl.Rule(temperature['warm'] & humidity['dry'], comfort['comfortable'])
 
 # Create the control system
-win_prob_ctrl = ctrl.ControlSystem([rule1, rule2, rule3, rule4, rule5, rule6, rule7, rule8, rule9])
-win_prob_sim = ctrl.ControlSystemSimulation(win_prob_ctrl)
+comfort_ctrl = ctrl.ControlSystem([rule1, rule2, rule3])
 
-# Input the values for score
-win_prob_sim.input['score'] = 10
+# Create the control system simulation
+comfort_sim = ctrl.ControlSystemSimulation(comfort_ctrl)
 
-# Compute the output
-win_prob_sim.compute()
+# Set the input variable values
+comfort_sim.input['temperature'] = 30
+comfort_sim.input['humidity'] = 60
 
-# Print the output
-print(win_prob_sim.output['win_prob'])
+# Compute the output value
+comfort_sim.compute()
+
+# Print the result
+print(comfort_sim.output['comfort'])
