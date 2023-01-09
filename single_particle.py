@@ -19,13 +19,7 @@ F_y = -Y / T_R  # y-component of gradient
 
 # Initialize particle position and velocity
 position = np.array([np.random.choice(X.flatten()), np.random.choice(Y.flatten())])
-
-# Calculate interpolated values of F_x and F_y at current position
-F_x_interp = np.interp(position[0], X[0,:], F_x[:,0])
-F_y_interp = np.interp(position[1], Y[:,0], F_y[0,:])
-
-# Set velocity based on interpolated values
-velocity = np.array([F_x_interp, F_y_interp])
+velocity = np.array([0, 0])
 
 # Run the simulation
 running = True
