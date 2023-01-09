@@ -1,4 +1,4 @@
-from skfuzzy import control
+from skfuzzy import control, defuzzify
 import numpy as np
 
 # Define universe of variables
@@ -32,3 +32,6 @@ outcome_sim.compute()
 
 # Print output
 print(outcome_sim.output['outcome'])
+
+crisp_output = defuzzify.centroid(outcome.universe, outcome_sim.output['outcome'])
+print(crisp_output)
