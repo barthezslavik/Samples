@@ -60,3 +60,15 @@ for root, dirs, files in os.walk("data/fuzzy"):
                 rows.append(teams)
 
 print(rows)
+
+# Head to head
+h2h = {}
+for i in range(len(rows)):
+    for team1 in rows[i]:
+        for team2 in rows[i]:
+            if team1 != team2:
+                if team1 not in h2h:
+                    h2h[team1] = {}
+                # Append the result as list of 0s and 1s
+                h2h[team1][team2] = [result for result in rows[i][team1]]
+print(h2h)

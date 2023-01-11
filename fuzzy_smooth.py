@@ -48,7 +48,7 @@ comfort = np.fmax(rule1, np.fmax(rule2, rule3))
 # Plot defuzzified output
 defuzzified_value = np.mean(X_smooth[comfort == np.max(comfort)])
 
-plt.figure()
-plt.plot(X_smooth, comfort)
-plt.axvline(defuzzified_value, color='r', linestyle='--')
-plt.show()
+# plt.figure()
+# plt.plot(X_smooth, comfort)
+# plt.axvline(defuzzified_value, color='r', linestyle='--')
+# plt.show()
