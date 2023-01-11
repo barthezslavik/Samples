@@ -1,6 +1,7 @@
 import numpy as np
 import skfuzzy as fuzz
 from skfuzzy import control as ctrl
+import matplotlib.pyplot as plt
 
 # Define the input and output variables
 temperature = ctrl.Antecedent(np.arange(-20, 41, 1), 'temperature')
@@ -12,6 +13,7 @@ temperature['cold'] = fuzz.trimf(temperature.universe, [-20, -20, 0])
 temperature['cool'] = fuzz.trimf(temperature.universe, [-20, 0, 20])
 temperature['warm'] = fuzz.trimf(temperature.universe, [0, 20, 40])
 temperature['hot'] = fuzz.trimf(temperature.universe, [20, 40, 40])
+
 humidity['dry'] = fuzz.trimf(humidity.universe, [0, 0, 50])
 humidity['comfortable'] = fuzz.trimf(humidity.universe, [0, 50, 100])
 humidity['humid'] = fuzz.trimf(humidity.universe, [50, 100, 100])
@@ -33,11 +35,8 @@ comfort_ctrl = ctrl.ControlSystem([rule1, rule2, rule3])
 comfort_sim = ctrl.ControlSystemSimulation(comfort_ctrl)
 
 # Set the input variable values
-comfort_sim.input['temperature'] = 30
+comfort_sim.input['temperature'] = 0
 comfort_sim.input['humidity'] = 60
 
 # Compute the output value
 comfort_sim.compute()
-
-# Print the result
-print(comfort_sim.output['comfort'])

@@ -28,6 +28,9 @@ def get_result_name(home_score, away_score):
     elif diff >= 3:
         return "BW"
 
+# Rows for new dataset
+rows = []
+
 # Walk in the directory and get all the files
 for root, dirs, files in os.walk("data/fuzzy"):
     for file in files:
@@ -52,8 +55,8 @@ for root, dirs, files in os.walk("data/fuzzy"):
                         # If not add it
                         teams[team2] = []
                     # Add the match to the dictionary
-                    #teams[team1].append(match)
-                    #teams[team2].append(match)
                     teams[team1].append(get_result_name(int(match.split(",")[4]), int(match.split(",")[5])))
                     teams[team2].append(get_result_name(int(match.split(",")[5]), int(match.split(",")[4])))
-                print(teams)
+                rows.append(teams)
+
+print(rows)
