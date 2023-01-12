@@ -1,6 +1,9 @@
 import os
 from multiprocessing import Pool
 
+iteration = 0;
+limit = 500;
+
 def invert_result_for_away_team(result):
     result = clear(result)
     if result == "BW":
@@ -56,13 +59,6 @@ def hh(team1, team2, date):
     # Return last 2 results
     return lines[-2:]
 
-# print(history("Beveren", '2010-01-01'))
-# print(history("Bergen", '2010-01-01'))
-# print(hh("Beveren", "Bergen", '2010-01-01'))
-# print(hh("Bergen", "Beveren", '2010-01-01'))
-
-iteration = 0;
-
 # Build dataset with columns: x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, y
 # x1, x2, x3, x4, x5: result of the last 5 games for the home team
 # x6, x7, x8, x9, x10: result of the last 5 games for the away team
@@ -83,6 +79,9 @@ def build_dataset():
     lines = [[line[0], line[1], line[2], line[3], line[4], invert_result_for_away_team(line[5])] if line[2] == line[3] else line for line in lines]
     # Remove all expect the result
     lines = [[line[0], line[1], line[2], line[3], line[4], clear(line[5])] for line in lines]
+    # Get first n lines
+    lines = lines[0:limit]
+
     # Create a pool of worker processes
     with Pool() as pool:
         # Use map to apply the process_line function to each line in parallel
@@ -90,22 +89,24 @@ def build_dataset():
     return dataset
 
 def process_line(line):
-    global iteration
+    global iteration, limit
     iteration += 1
-    print(iteration / 64980 * 100, "%")
+    print(round(iteration * 8) * 100 / limit, "%")
     # Get the history for the home team
     home_team_history = history(line[1], line[0])
     # Get the history for the away team
     away_team_history = history(line[2], line[0])
     # Get the head to head for the two teams
     hhh = hh(line[1], line[2], line[0])
+    info = [line[0], line[1], line[2]]
     # Append the dataset
-    return home_team_history + away_team_history + hhh + [line[5]]
+    return info + home_team_history + away_team_history + hhh + [line[5]]
 
 if __name__ == '__main__':
     dataset = build_dataset()
-    print(dataset)
     # Write the dataset to a file
     with open("data/fuzzy/fuzzy3.csv", "w") as f:
+        # Write the header
+        f.write("date,team1,team2,x1,x2,x3,x4,x5,x6,x7,x8,x9,x10,x11,x12,y\n")
         for line in dataset:
             f.write(",".join(line) + "\n")

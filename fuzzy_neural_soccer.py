@@ -7,6 +7,10 @@ import matplotlib.pyplot as plt
 
 # Read in dataset
 data = pd.read_csv('data/fuzzy/fuzzy3.csv', header=0)
+# Remove duplicates
+# print(len(data))
+# data = data.drop_duplicates()
+# print(len(data))
 
 # Create a dictionary to map outcome to integer values
 outcome_map = {'SW': 0, 'SL': 1, 'D': 2, 'BW': 3, 'BL': 4}
@@ -15,7 +19,7 @@ outcome_map = {'SW': 0, 'SL': 1, 'D': 2, 'BW': 3, 'BL': 4}
 data = data.replace(outcome_map)
 
 # Assign the input variables to X and the output variable to y
-X = data.drop(['y'], axis=1)
+X = data.drop(['date','team1','team2','y'], axis=1)
 y = data['y']
 
 # split data into train and test set
@@ -30,7 +34,7 @@ y_pred = nn.predict(X_test)
 
 # Convert predictions to integer values
 y_pred = np.round(y_pred).astype(int)
-
+#
 # Calculate accuracy
 acc = accuracy_score(y_test, y_pred)
 
