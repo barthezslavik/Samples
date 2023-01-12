@@ -25,29 +25,29 @@ X_smooth = np.linspace(-20,41, 200)
 temp_smooth = nn_temp.predict(X_smooth.reshape(-1,1))
 hum_smooth = nn_humidity.predict(X_smooth.reshape(-1,1))
 
-# Plot the original and the smoothed membership function
-plt.figure(figsize=(15,5))
-plt.subplot(1,2,1)
-plt.plot(temperature, temp_cold_mem_func, 'b', linewidth=1.5, label='original')
-plt.plot(X_smooth, temp_smooth[:,0], 'r', linewidth=1.5, label='smooth')
-plt.legend()
-plt.subplot(1,2,2)
-plt.plot(humidity, humidity_dry_mem_func, 'b', linewidth=1.5, label='original')
-plt.plot(X_smooth, hum_smooth[:,0], 'r', linewidth=1.5, label='smooth')
-plt.legend()
-plt.show()
+# # Plot the original and the smoothed membership function
+# plt.figure(figsize=(15,5))
+# plt.subplot(1,2,1)
+# plt.plot(temperature, temp_cold_mem_func, 'b', linewidth=1.5, label='original')
+# plt.plot(X_smooth, temp_smooth[:,0], 'r', linewidth=1.5, label='smooth')
+# plt.legend()
+# plt.subplot(1,2,2)
+# plt.plot(humidity, humidity_dry_mem_func, 'b', linewidth=1.5, label='original')
+# plt.plot(X_smooth, hum_smooth[:,0], 'r', linewidth=1.5, label='smooth')
+# plt.legend()
+# plt.show()
 
-# Define the fuzzy rules
-rule1 = np.fmin(temp_smooth[:,0], hum_smooth[:,0])
-rule2 = np.fmin(temp_smooth[:,1], hum_smooth[:,1])
-rule3 = np.fmin(temp_smooth[:,2], hum_smooth[:,0])
+# # Define the fuzzy rules
+# rule1 = np.fmin(temp_smooth[:,0], hum_smooth[:,0])
+# rule2 = np.fmin(temp_smooth[:,1], hum_smooth[:,1])
+# rule3 = np.fmin(temp_smooth[:,2], hum_smooth[:,0])
 
-# Defuzzification 
-comfort = np.fmax(rule1, np.fmax(rule2, rule3))
+# # Defuzzification 
+# comfort = np.fmax(rule1, np.fmax(rule2, rule3))
 
-# Plot defuzzified output
-defuzzified_value = np.mean(X_smooth[comfort == np.max(comfort)])
-print('Defuzzified value: ', defuzzified_value)
+# # Plot defuzzified output
+# defuzzified_value = np.mean(X_smooth[comfort == np.max(comfort)])
+# print('Defuzzified value: ', defuzzified_value)
 
 # plt.figure()
 # plt.plot(X_smooth, comfort)

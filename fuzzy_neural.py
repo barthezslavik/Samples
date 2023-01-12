@@ -1,37 +1,44 @@
 import numpy as np
-import skfuzzy as fuzz
-from skfuzzy import control as ctrl
-from keras.models import Sequential
-from keras.layers import Dense
+from sklearn.neural_network import MLPRegressor
+import matplotlib.pyplot as plt
 
-# Define input and output data
-input_data = np.array([[0.1, 0.2, 0.3], [0.4, 0.5, 0.6], [0.7, 0.8, 0.9]])
-output_data = np.array([0.1, 0.2, 0.3])
+# Define the input and output variables
+outcomes = np.array([0, 1, 2, 3, 4])
+scores = np.array([-5, -3, 0, 2, 5])
 
-# Define fuzzy variables and membership functions
-x = ctrl.Antecedent(np.arange(0, 1.1, 0.1), 'x')
-y = ctrl.Consequent(np.arange(0, 1.1, 0.1), 'y')
-x.automf(3)
-y.automf(3)
+# Define the membership functions for the input variables
+BL_mem_func = np.array([1, 0, 0, 0, 0])
+SL_mem_func = np.array([0, 1, 0, 0, 0])
+D_mem_func = np.array([0, 0, 1, 0, 0])
+SW_mem_func = np.array([0, 0, 0, 1, 0])
+BW_mem_func = np.array([0, 0, 0, 0, 1])
 
-# Define fuzzy rules
-rule1 = ctrl.Rule(x['poor'] & y['poor'], 0.1)
-rule2 = ctrl.Rule(x['average'] & y['average'], 0.2)
-rule3 = ctrl.Rule(x['good'] & y['good'], 0.3)
+# Train neural network to approximate membership functions
+nn_outcomes = MLPRegressor(hidden_layer_sizes=(20, 20))
+nn_outcomes.fit(outcomes.reshape(-1, 1), np.column_stack((BL_mem_func, SL_mem_func, D_mem_func, SW_mem_func, BW_mem_func)))
+nn_scores = MLPRegressor(hidden_layer_sizes=(20, 20))
+nn_scores.fit(scores.reshape(-1, 1), np.column_stack((BL_mem_func, SL_mem_func, D_mem_func, SW_mem_func, BW_mem_func)))
 
-# Create fuzzy control system
-fuzzy_ctrl = ctrl.ControlSystem([rule1, rule2, rule3])
-fuzzy_model = ctrl.ControlSystemSimulation(fuzzy_ctrl)
+# Use the neural network to get the membership values for a smoother membership function
+X_smooth = np.linspace(-5,5, 200)
+outcomes_smooth = nn_outcomes.predict(X_smooth.reshape(-1,1))
+scores_smooth = nn_scores.predict(X_smooth.reshape(-1,1))
 
-# # Create neural network
-# nn_model = Sequential()
-# nn_model.add(Dense(10, input_dim=3, activation='relu'))
-# nn_model.add(Dense(1, activation='linear'))
-# nn_model.compile(loss='mean_squared_error', optimizer='adam')
+# Plot the original membership function
+plt.plot(outcomes, BL_mem_func, 'o', label='BL')
+plt.plot(outcomes, SL_mem_func, 'o', label='SL')
+plt.plot(outcomes, D_mem_func, 'o', label='D')
+plt.plot(outcomes, SW_mem_func, 'o', label='SW')
+plt.plot(outcomes, BW_mem_func, 'o', label='BW')
 
-# # Train neural network
-# nn_model.fit(input_data, output_data, epochs=1000, verbose=0)
+# Plot the smoothed membership function
+plt.plot(X_smooth, outcomes_smooth[:,0], label='BL_smooth')
+plt.plot(X_smooth, outcomes_smooth[:,1], label='SL_smooth')
+plt.plot(X_smooth, outcomes_smooth[:,2], label='D_smooth')
+plt.plot(X_smooth, outcomes_smooth[:,3], label='SW_smooth')
+plt.plot(X_smooth, outcomes_smooth[:,4], label='BW_smooth')
 
-# # Use neural network to estimate fuzzy system parameters
-# fuzzy_model.inputs(input_data[0])
-# fuzzy_model.compute()
+plt.legend()
+plt.xlabel('Outcomes')
+plt.ylabel('Membership')
+plt.show()
