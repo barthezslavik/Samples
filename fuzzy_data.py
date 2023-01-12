@@ -1,59 +1,42 @@
 import os
 
-def get_result_name(home_score, away_score):
-    diff = home_score - away_score
-    if diff <= -3:
+def invert_result_for_away_team(result):
+    result = clear(result)
+    if result == "BW":
         return "BL"
-    elif diff == -2 or diff == -1:
-        return "SL"
-    elif diff == 0:
-        return "D"
-    elif diff == 1 or diff == 2:
+    elif result == "SL":
         return "SW"
-    elif diff >= 3:
+    elif result == "SW":
+        return "SL"
+    elif result == "BL":
         return "BW"
+    elif result == "D":
+        return "D"
 
-# Rows for new dataset
-rows = []
+def clear(result):
+    return result.replace("\n", "")
 
-# Walk in the directory and get all the files
-for root, dirs, files in os.walk("data/fuzzy"):
-    for file in files:
-        if file.endswith(".csv"):
-            # open the file
-            with open(os.path.join(root, file)) as f:
-                # Get all matches for each team
-                matches = f.readlines()[1:]
-                # Create a dictionary to store the matches
-                teams = {}
-                # Loop through all the matches
-                for match in matches:
-                    # Get the teams
-                    team1 = match.split(",")[2]
-                    team2 = match.split(",")[3]
-                    # Check if the team is in the dictionary
-                    if team1 not in teams:
-                        # If not add it
-                        teams[team1] = []
-                    # Check if the team is in the dictionary
-                    if team2 not in teams:
-                        # If not add it
-                        teams[team2] = []
-                    # Add the match to the dictionary
-                    teams[team1].append(get_result_name(int(match.split(",")[4]), int(match.split(",")[5])))
-                    teams[team2].append(get_result_name(int(match.split(",")[5]), int(match.split(",")[4])))
-                rows.append(teams)
+# History for specific team
+def history(team, date):
+    # Read the file as lines
+    with open("data/fuzzy/fuzzy2.csv", "r") as f:
+        lines = f.readlines()
+    # Split each line into columns
+    lines = [line.split(",") for line in lines]
+    # Remove the last column for each line
+    lines = [line[0:6] for line in lines]
+    # Filter the lines for the team
+    lines = [line for line in lines if line[1] == team or line[2] == team]
+    # Filter the lines for the date
+    lines = [line for line in lines if line[0] <= date]
+    # Invert the result for the away team
+    lines = [[line[0], line[1], line[2], line[3], line[4], invert_result_for_away_team(line[5])] if line[2] == team else line for line in lines]
+    # Remove all expect the result
+    lines = [clear(line[5]) for line in lines]
+    return lines
 
-print(rows)
+a = history("Beveren", '1999-01-01')
+print(a)
+print(len(a))
 
-# Head to head
-h2h = {}
-for i in range(len(rows)):
-    for team1 in rows[i]:
-        for team2 in rows[i]:
-            if team1 != team2:
-                if team1 not in h2h:
-                    h2h[team1] = {}
-                # Append the result as list of 0s and 1s
-                h2h[team1][team2] = [result for result in rows[i][team1]]
-print(h2h)
+# b = hh("Beveren", "Bergen", history, '2000/01/01')
