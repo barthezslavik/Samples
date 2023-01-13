@@ -43,7 +43,6 @@ for root, dirs, files in os.walk("data/fuzzy"):
             if file.endswith(".csv"):
                 # open the file
                 with open(os.path.join(root, file)) as f:
-                    print("Processing file: " + file)
                     # read the second line
                     line = f.readlines()[1]
                     # read the second column
@@ -72,6 +71,7 @@ for year in order:
     # Open the file
     if os.path.exists(file_name):
         with open(file_name) as f:
+            print("Processing file: " + file_name)
             # read the csv file into a dataframe
             df = pd.read_csv(file_name)
             # drop the "Time" column if it exists
