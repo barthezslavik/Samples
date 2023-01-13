@@ -56,16 +56,22 @@ acc = accuracy_score(y_test, y_pred)
 print("Accuracy: ", acc)
 
 # Save all accuracies to a file
-with open('data/accuracies.csv', 'a') as f:
-    data = [acc_sw, acc_sl, acc_d, acc_bw, acc_bl, acc]
+with open('data/accuracies_d.csv', 'a') as f:
+    data = [acc_d, acc]
     # Convert list to string
     data = ','.join(map(str, data)) + "\n"
     f.write(data)
 
 
 # Plot accuracies.csv
-accuracies = pd.read_csv('data/accuracies.csv', header=None)
-accuracies.columns = ['SW', 'SL', 'D', 'BW', 'BL', 'Overall']
+accuracies = pd.read_csv('data/accuracies_d.csv', header=None)
+accuracies.columns = ['D', 'Overall']
+# Plot mean accuracy
+# accuracies.mean().plot(kind='bar')
+# plt.xlabel('Outcome')
+# plt.ylabel('Accuracy')
+# plt.savefig('data/mean_accuracy.png')
+# Plot all accuracies
 accuracies.plot()
 plt.xlabel('Iterations')
 plt.ylabel('Accuracy')
