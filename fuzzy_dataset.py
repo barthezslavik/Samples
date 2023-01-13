@@ -39,16 +39,17 @@ def get_result_name(home_score, away_score):
 for root, dirs, files in os.walk("data/fuzzy"):
     for file in files:
         # Skip the files with name fuzzy.csv and fuzzy2.csv
-        if file not in ["fuzzy.csv", "fuzzy2.csv"]:
+        if file not in ["fuzzy.csv", "fuzzy2.csv", "fuzzy3.csv"]:
             if file.endswith(".csv"):
                 # open the file
                 with open(os.path.join(root, file)) as f:
+                    print("Processing file: " + file)
                     # read the second line
                     line = f.readlines()[1]
                     # read the second column
                     line = line.split(",")[1]
                     # get the month and year and remove the day
-                    year =line.split(" ")[0].split("/")[2]
+                    year =line.split(" ")[0].split("/")[2].replace('"', '')
                     year = format_year(year)
                     # rename the file to year.csv
                     os.rename(os.path.join(root, file), os.path.join(root, year + ".csv"))
@@ -59,6 +60,10 @@ order = ["95", "96", "97", "98", "99", "00", "01",
         "16", "17", "18", "19", "20", "21", "22"]
 
 with open("data/fuzzy/fuzzy.csv", "w") as f:
+    f.write("")
+with open("data/fuzzy/fuzzy2.csv", "w") as f:
+    f.write("")
+with open("data/fuzzy/fuzzy3.csv", "w") as f:
     f.write("")
 
 # Merge all the files into one
