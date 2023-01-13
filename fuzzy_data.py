@@ -109,4 +109,5 @@ if __name__ == '__main__':
         # Write the header
         f.write("date,team1,team2,x1,x2,x3,x4,x5,x6,x7,x8,x9,x10,x11,x12,y\n")
         for line in dataset:
-            f.write(",".join(line) + "\n")
+            if (len(line) > 15):
+                f.write(",".join(line) + "\n")
