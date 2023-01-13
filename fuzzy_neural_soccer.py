@@ -69,7 +69,7 @@ accuracies.columns = ['SW', 'SL', 'D', 'BW', 'BL', 'Overall']
 accuracies.plot()
 plt.xlabel('Iterations')
 plt.ylabel('Accuracy')
-# plt.show()
+plt.savefig('data/accuracies.png')
 
 
 # Plot the loss
