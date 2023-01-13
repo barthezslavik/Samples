@@ -7,10 +7,6 @@ import matplotlib.pyplot as plt
 
 # Read in dataset
 data = pd.read_csv('data/fuzzy/fuzzy3.csv', header=0)
-# Remove duplicates
-# print(len(data))
-# data = data.drop_duplicates()
-# print(len(data))
 
 # Create a dictionary to map outcome to integer values
 outcome_map = {'SW': 0, 'SL': 1, 'D': 2, 'BW': 3, 'BL': 4}
@@ -34,7 +30,7 @@ y_pred = nn.predict(X_test)
 
 # Convert predictions to integer values
 y_pred = np.round(y_pred).astype(int)
-#
+
 # Calculate accuracy
 acc = accuracy_score(y_test, y_pred)
 
@@ -45,4 +41,19 @@ print("Accuracy: ", acc)
 plt.plot(nn.loss_curve_)
 plt.xlabel('Iterations')
 plt.ylabel('Loss')
-plt.show()
+# plt.show()
+
+# Replace all values in X_test to their corresponding outcome
+X_test = X_test.replace({v: k for k, v in outcome_map.items()})
+print(X_test.head(20))
+y_test = y_test.replace({v: k for k, v in outcome_map.items()})
+print(y_test.head(20))
+y_pred = pd.Series(y_pred).replace({v: k for k, v in outcome_map.items()})
+print(y_pred.head(20))
+
+# Dump the test set to a file
+X_test.to_csv('data/X_test.csv', index=False)
+# Dump the test set to a file
+y_test.to_csv('data/y_test.csv', index=False)
+# Dump the predicted values to a file
+y_pred.to_csv('data/y_pred.csv', index=False)
