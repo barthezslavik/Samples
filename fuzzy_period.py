@@ -66,7 +66,16 @@ print("Accuracy for BL outcome: ", acc_bl)
 
 # Calculate overall accuracy
 acc = accuracy_score(y_test, y_pred)
-print("Overall accuracy: ", acc)
+# print("Overall accuracy: ", acc)
+
+print("")
+
+# Coefficients
+print(f"Coefficient for SW > {round(100/(acc_sw * 100), 2)}" if acc_sw != 0 else "")
+print(f"Coefficient for SL > {round(100/(acc_sl * 100), 2)}" if acc_sl != 0 else "")
+print(f"Coefficient for D > {round(100/(acc_d * 100), 2)}" if acc_d != 0 else "")
+print(f"Coefficient for BW > {round(100/(acc_bw * 100), 2)}" if acc_bw != 0 else "")
+print(f"Coefficient for BL > {round(100/(acc_bl * 100), 2)}" if acc_bl != 0 else "")
 
 # Save all accuracies to a file
 with open('data/accuracies_all.csv', 'a') as f:
