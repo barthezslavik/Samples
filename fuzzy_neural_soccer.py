@@ -31,65 +31,70 @@ y_pred = nn.predict(X_test)
 # Convert predictions to integer values
 y_pred = np.round(y_pred).astype(int)
 
-# Calculate accuracy by single outcome SW
-acc_sw = accuracy_score(y_test[y_test == 0], y_pred[y_test == 0])
-print("Accuracy SW: ", acc_sw)
+# create a dataframe with test and prediction results
+df = pd.DataFrame({'y_test': y_test, 'y_pred': y_pred})
 
-# Calculate accuracy by single outcome SL
-acc_sl = accuracy_score(y_test[y_test == 1], y_pred[y_test == 1])
-print("Accuracy SL: ", acc_sl)
+# count the number of correct predictions of 'SW' outcome
+df['correct'] = df['y_test'] == df['y_pred']
+df_sw = df[df['y_pred'] == 0]
+correct_sw = df_sw[df_sw['correct'] == True]
+acc_sw = len(correct_sw) / len(df_sw)
+print("Accuracy for SW outcome: ", acc_sw)
 
-# Calculate accuracy by single outcome D
-acc_d = accuracy_score(y_test[y_test == 2], y_pred[y_test == 2])
-print("Accuracy D: ", acc_d)
+# count the number of correct predictions of 'SL' outcome
+df_sl = df[df['y_pred'] == 1]
+correct_sl = df_sl[df_sl['correct'] == True]
+if len(df_sl) == 0:
+    acc_sl = ""
+else:
+    acc_sl = len(correct_sl) / len(df_sl)
+print("Accuracy for SL outcome: ", acc_sl)
 
-# Calculate accuracy by single outcome BW
-acc_bw = accuracy_score(y_test[y_test == 3], y_pred[y_test == 3])
-print("Accuracy BW: ", acc_bw)
+# count the number of correct predictions of 'D' outcome
+df_d = df[df['y_pred'] == 2]
+correct_d = df_d[df_d['correct'] == True]
+acc_d = len(correct_d) / len(df_d)
+print("Accuracy for D outcome: ", acc_d)
 
-# Calculate accuracy by single outcome BL
-acc_bl = accuracy_score(y_test[y_test == 4], y_pred[y_test == 4])
-print("Accuracy BL: ", acc_bl)
+# count the number of correct predictions of 'BW' outcome
+df_bw = df[df['y_pred'] == 3]
+correct_bw = df_bw[df_bw['correct'] == True]
+if len(df_bw) == 0:
+    acc_bw = ""
+else:
+    acc_bw = len(correct_bw) / len(df_bw)
+print("Accuracy for BW outcome: ", acc_bw)
 
-# Calculate accuracy
+# count the number of correct predictions of 'BL' outcome
+df_bl = df[df['y_pred'] == 4]
+correct_bl = df_bl[df_bl['correct'] == True]
+if len(df_bl) == 0:
+    acc_bl = ""
+else:
+    acc_bl = len(correct_bl) / len(df_bl)
+print("Accuracy for BL outcome: ", acc_bl)
+
+# Calculate overall accuracy
 acc = accuracy_score(y_test, y_pred)
-print("Accuracy: ", acc)
+print("Overall accuracy: ", acc)
 
 # Save all accuracies to a file
-with open('data/accuracies_d.csv', 'a') as f:
-    data = [acc_d, acc]
+with open('data/accuracies_all.csv', 'a') as f:
+    data = [acc_sw, acc_sl, acc_d, acc_bw, acc_bl, acc]
     # Convert list to string
     data = ','.join(map(str, data)) + "\n"
     f.write(data)
 
-
 # Plot accuracies.csv
-accuracies = pd.read_csv('data/accuracies_d.csv', header=None)
-accuracies.columns = ['D', 'Overall']
+accuracies = pd.read_csv('data/accuracies_all.csv', header=None)
+accuracies.columns = ['SW', 'SL', 'D', 'BW', 'BL', 'Overall']
 # Plot mean accuracy
-# accuracies.mean().plot(kind='bar')
-# plt.xlabel('Outcome')
-# plt.ylabel('Accuracy')
-# plt.savefig('data/mean_accuracy.png')
+accuracies.mean().plot(kind='bar')
+plt.xlabel('Outcome')
+plt.ylabel('Accuracy')
+plt.savefig('data/mean_accuracy_neural.png')
 # Plot all accuracies
 accuracies.plot()
 plt.xlabel('Iterations')
 plt.ylabel('Accuracy')
-plt.savefig('data/accuracies.png')
-
-
-# Plot the loss
-plt.plot(nn.loss_curve_)
-plt.xlabel('Iterations')
-plt.ylabel('Loss')
-# plt.show()
-
-y_test = y_test.replace({v: k for k, v in outcome_map.items()})
-# print(y_test.head(20))
-y_pred = pd.Series(y_pred).replace({v: k for k, v in outcome_map.items()})
-# print(y_pred.head(20))
-
-# Dump the test set to a file
-y_test.to_csv('data/y_test.csv', index=False)
-# Dump the predicted values to a file
-y_pred.to_csv('data/y_pred.csv', index=False)
+plt.savefig('data/accuracies_neural.png')
