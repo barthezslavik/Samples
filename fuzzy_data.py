@@ -2,7 +2,7 @@ import os
 from multiprocessing import Pool
 
 iteration = 0;
-limit = 5000;
+limit = 10000;
 
 def invert_result_for_away_team(result):
     result = clear(result)
