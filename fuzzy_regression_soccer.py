@@ -44,7 +44,10 @@ print("Accuracy for SW outcome: ", acc_sw)
 # count the number of correct predictions of 'SL' outcome
 df_sl = df[df['y_pred'] == 1]
 correct_sl = df_sl[df_sl['correct'] == True]
-acc_sl = len(correct_sl) / len(df_sl)
+if len(df_sl) == 0:
+    acc_sl = ""
+else:
+    acc_sl = len(correct_sl) / len(df_sl)
 print("Accuracy for SL outcome: ", acc_sl)
 
 # count the number of correct predictions of 'D' outcome
@@ -57,7 +60,7 @@ print("Accuracy for D outcome: ", acc_d)
 df_bw = df[df['y_pred'] == 3]
 correct_bw = df_bw[df_bw['correct'] == True]
 if len(df_bw) == 0:
-    acc_bw = 1
+    acc_bw = ""
 else:
     acc_bw = len(correct_bw) / len(df_bw)
 print("Accuracy for BW outcome: ", acc_bw)
@@ -66,7 +69,7 @@ print("Accuracy for BW outcome: ", acc_bw)
 df_bl = df[df['y_pred'] == 4]
 correct_bl = df_bl[df_bl['correct'] == True]
 if len(df_bl) == 0:
-    acc_bl = 1
+    acc_bl = ""
 else:
     acc_bl = len(correct_bl) / len(df_bl)
 print("Accuracy for BL outcome: ", acc_bl)
@@ -89,17 +92,9 @@ accuracies.columns = ['SW', 'SL', 'D', 'BW', 'BL', 'Overall']
 accuracies.mean().plot(kind='bar')
 plt.xlabel('Outcome')
 plt.ylabel('Accuracy')
-plt.savefig('data/mean_accuracy.png')
+plt.savefig('data/mean_accuracy_regression.png')
 # Plot all accuracies
 accuracies.plot()
 plt.xlabel('Iterations')
 plt.ylabel('Accuracy')
-plt.savefig('data/accuracies.png')
-
-# y_test = y_test.replace({v: k for k, v in outcome_map.items()})
-# # print(y_test.head(20))
-# y_pred = pd.Series(y_pred).replace({v: k for k, v in outcome_map.items()})
-# # print(y_pred.head(20))
-
-# create a column that shows whether the prediction is correct or not
-# df.to_csv('data/y_test_y_pred.csv', index=False)
+plt.savefig('data/accuracies_regression.png')
