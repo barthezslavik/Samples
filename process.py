@@ -2,11 +2,29 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics import accuracy_score
 import matplotlib.pyplot as plt
+import glob
+import random
 
 def data():
     # Read in dataset
-    data_train = pd.read_csv('data/fuzzy/train.csv', header=0)
-    data_test = pd.read_csv('data/fuzzy/test.csv', header=0)
+    # data_train = pd.read_csv('data/fuzzy/train.csv', header=0)
+    # data_test = pd.read_csv('data/fuzzy/test.csv', header=0)
+
+    # Get random dataset
+    folders = glob.glob('data/*')
+    folder = random.choice(folders)
+    print("==================================")
+    print(folder)
+    print("==================================")
+
+    # Split fuzzy3.csv into train and test
+    data = pd.read_csv(folder + '/fuzzy3.csv', header=0)
+    n = int(0.8 * len(data))
+    data_train = data.head(n)
+    print(data_train.tail())
+    
+    data_test = data.tail(len(data) - n)
+    print(data_test.head())
 
     # Create a dictionary to map outcome to integer values
     outcome_map = {'SW': 0, 'SL': 1, 'D': 2, 'BW': 3, 'BL': 4}
@@ -83,11 +101,13 @@ def process(y_test, y_pred, data_test, name):
     # Plot accuracies.csv
     accuracies = pd.read_csv(f"data/accuracies_{name}.csv", header=None)
     accuracies.columns = ['SW', 'SL', 'D', 'BW', 'BL', 'Overall']
+
     # Plot mean accuracy
     accuracies.mean().plot(kind='bar')
     plt.xlabel('Outcome')
     plt.ylabel('Accuracy')
     plt.savefig(f"data/mean_accuracy_{name}.png")
+
     # Plot all accuracies
     accuracies.plot()
     plt.xlabel('Iterations')
@@ -95,16 +115,16 @@ def process(y_test, y_pred, data_test, name):
     plt.savefig(f"data/accuracies_{name}.png")
 
     # restore 0 -> SW, 1 -> SL, 2 -> D, 3 -> BW, 4 -> BL
-    y_test = y_test.replace({0: 'SW', 1: 'SL', 2: 'D', 3: 'BW', 4: 'BL'})
-    y_pred = pd.Series(y_pred).replace({0: 'SW', 1: 'SL', 2: 'D', 3: 'BW', 4: 'BL'})
+    # y_test = y_test.replace({0: 'SW', 1: 'SL', 2: 'D', 3: 'BW', 4: 'BL'})
+    # y_pred = pd.Series(y_pred).replace({0: 'SW', 1: 'SL', 2: 'D', 3: 'BW', 4: 'BL'})
 
     # Merge team1, team2, test and prediction results
-    date = pd.Series(data_test['date'])
-    team1 = pd.Series(data_test['team1'])
-    team2 = pd.Series(data_test['team2'])
-    correct = pd.Series(y_test == y_pred)
-    prediction = pd.concat([date, team1, team2, y_test, y_pred, correct], axis=1)
-    prediction.columns = ['Date', 'Home', 'Away', 'Result', 'Prediction', 'Correct']
+    # date = pd.Series(data_test['date'])
+    # team1 = pd.Series(data_test['team1'])
+    # team2 = pd.Series(data_test['team2'])
+    # correct = pd.Series(y_test == y_pred)
+    # prediction = pd.concat([date, team1, team2, y_test, y_pred, correct], axis=1)
+    # prediction.columns = ['Date', 'Home', 'Away', 'Result', 'Prediction', 'Correct']
 
     # Drop all BW and BL predictions
     # prediction = prediction[prediction['Prediction'] != 'BW']
