@@ -38,31 +38,31 @@ df['correct'] = df['y_test'] == df['y_pred']
 df_sw = df[df['y_pred'] == 0]
 correct_sw = df_sw[df_sw['correct'] == True]
 acc_sw = "" if len(df_sw) == 0 else len(correct_sw) / len(df_sw)
-print("Accuracy for SW outcome: ", acc_sw)
+print("Accuracy for SW outcome: ", round(acc_sw, 2))
 
 # count the number of correct predictions of 'SL' outcome
 df_sl = df[df['y_pred'] == 1]
 correct_sl = df_sl[df_sl['correct'] == True]
 acc_sl = "" if len(df_sl) == 0 else len(correct_sl) / len(df_sl)
-print("Accuracy for SL outcome: ", acc_sl)
+print("Accuracy for SL outcome: ", round(acc_sl, 2))
 
 # count the number of correct predictions of 'D' outcome
 df_d = df[df['y_pred'] == 2]
 correct_d = df_d[df_d['correct'] == True]
 acc_d = "" if len(df_d) == 0 else len(correct_d) / len(df_d)
-print("Accuracy for D outcome: ", acc_d)
+print("Accuracy for D outcome: ", round(acc_d, 2))
 
 # count the number of correct predictions of 'BW' outcome
 df_bw = df[df['y_pred'] == 3]
 correct_bw = df_bw[df_bw['correct'] == True]
 acc_bw = "" if len(df_bw) == 0 else len(correct_bw) / len(df_bw)
-print("Accuracy for BW outcome: ", acc_bw)
+print("Accuracy for BW outcome: ", round(acc_bw, 2))
 
 # count the number of correct predictions of 'BL' outcome
 df_bl = df[df['y_pred'] == 4]
 correct_bl = df_bl[df_bl['correct'] == True]
 acc_bl = "" if len(df_bl) == 0 else len(correct_bl) / len(df_bl)
-print("Accuracy for BL outcome: ", acc_bl)
+print("Accuracy for BL outcome: ", round(acc_bl, 2))
 
 # Calculate overall accuracy
 acc = accuracy_score(y_test, y_pred)
