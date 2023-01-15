@@ -5,7 +5,6 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
 from sklearn.neural_network import MLPRegressor
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import GaussianNB
 
 import xgboost as xgb
@@ -34,13 +33,6 @@ for i in range(2):
     p.process(y_test, y_pred, data_test, 'decision')
 
 for i in range(2):
-    # SVM model
-    svm_model = SVC()
-    svm_model.fit(X_train, y_train)
-    y_pred = svm_model.predict(X_test)
-    p.process(y_test, y_pred, data_test, 'svm')
-
-for i in range(2):
     # XGBoost model
     xgb_model = xgb.XGBClassifier()
     xgb_model.fit(X_train, y_train)
@@ -53,20 +45,6 @@ for i in range(2):
     rf_model.fit(X_train, y_train)
     y_pred = rf_model.predict(X_test)
     p.process(y_test, y_pred, data_test, 'random')
-
-for i in range(2):
-    # KNN model
-    knn_model = KNeighborsClassifier()
-    knn_model.fit(X_train, y_train)
-    y_pred = knn_model.predict(X_test)
-    p.process(y_test, y_pred, data_test, 'knn')
-
-for i in range(2):
-    # Naive Bayes model
-    nb_model = GaussianNB()
-    nb_model.fit(X_train, y_train)
-    y_pred = nb_model.predict(X_test)
-    p.process(y_test, y_pred, data_test, 'naive')
 
 for i in range(2):
     # Neural Network model

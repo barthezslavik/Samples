@@ -13,17 +13,20 @@ def data():
     # Get random dataset
     folders = glob.glob('data/*')
     folder = random.choice(folders)
-    print("==================================")
-    print(folder)
-    print("==================================")
+
+    # print("==================================")
+    # print(folder)
+    # print("==================================")
+
+    # folder = "data/Germany_93_21"
 
     # Split fuzzy3.csv into train and test
     data = pd.read_csv(folder + '/fuzzy3.csv', header=0)
-    n = int(0.8 * len(data))
+    n = 3 * 38
     data_train = data.head(n)
     print(data_train.tail())
-    
-    data_test = data.tail(len(data) - n)
+    # Get 1 year of data for testing
+    data_test = data.tail(38)
     print(data_test.head())
 
     # Create a dictionary to map outcome to integer values
@@ -47,11 +50,17 @@ def process(y_test, y_pred, data_test, name):
     # create a dataframe with test and prediction results
     df = pd.DataFrame({'y_test': y_test, 'y_pred': y_pred})
 
+    print("")
+    print(name)
+
     # count the number of correct predictions of 'SW' outcome
     df['correct'] = df['y_test'] == df['y_pred']
     df_sw = df[df['y_pred'] == 0]
     correct_sw = df_sw[df_sw['correct'] == True]
-    acc_sw = len(correct_sw) / len(df_sw)
+    if len(df_sw) == 0:
+        acc_sw = ""
+    else:
+        acc_sw = len(correct_sw) / len(df_sw)
     print("Accuracy for SW outcome: ", acc_sw)
 
     # count the number of correct predictions of 'SL' outcome
@@ -66,7 +75,10 @@ def process(y_test, y_pred, data_test, name):
     # count the number of correct predictions of 'D' outcome
     df_d = df[df['y_pred'] == 2]
     correct_d = df_d[df_d['correct'] == True]
-    acc_d = len(correct_d) / len(df_d)
+    if len(df_d) == 0:
+        acc_d = ""
+    else:
+        acc_d = len(correct_d) / len(df_d)
     print("Accuracy for D outcome: ", acc_d)
 
     # count the number of correct predictions of 'BW' outcome
