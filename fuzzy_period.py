@@ -33,8 +33,25 @@ y_pred = np.round(y_pred).astype(int)
 # create a dataframe with test and prediction results
 df = pd.DataFrame({'y_test': y_test, 'y_pred': y_pred})
 
-# count the number of correct predictions of 'SW' outcome
+# count the number of correct predictions
 df['correct'] = df['y_test'] == df['y_pred']
+print("Total number of SW predictions: ", len(df[df['y_pred'] == 0]))
+print("Total number of correct SW predictions: ", len(df[(df['y_pred'] == 0) & (df['correct'] == True)]))
+print("")
+print("Total number of SL predictions: ", len(df[df['y_pred'] == 1]))
+print("Total number of correct SL predictions: ", len(df[(df['y_pred'] == 1) & (df['correct'] == True)]))
+print("")
+print("Total number of D predictions: ", len(df[df['y_pred'] == 2]))
+print("Total number of correct D predictions: ", len(df[(df['y_pred'] == 2) & (df['correct'] == True)]))
+print("")
+print("Total number of BW predictions: ", len(df[df['y_pred'] == 3]))
+print("Total number of correct BW predictions: ", len(df[(df['y_pred'] == 3) & (df['correct'] == True)]))
+print("")
+print("Total number of BL predictions: ", len(df[df['y_pred'] == 4]))
+print("Total number of correct BL predictions: ", len(df[(df['y_pred'] == 4) & (df['correct'] == True)]))
+print("")
+
+# count the number of correct predictions of 'SW' outcome
 df_sw = df[df['y_pred'] == 0]
 correct_sw = df_sw[df_sw['correct'] == True]
 acc_sw = "" if len(df_sw) == 0 else len(correct_sw) / len(df_sw)
@@ -99,3 +116,14 @@ accuracies.plot()
 plt.xlabel('Iterations')
 plt.ylabel('Accuracy')
 plt.savefig('data/accuracies_xg.png')
+
+# restore 0 -> SW, 1 -> SL, 2 -> D, 3 -> BW, 4 -> BL
+y_test = y_test.replace({0: 'SW', 1: 'SL', 2: 'D', 3: 'BW', 4: 'BL'})
+y_pred = pd.Series(y_pred).replace({0: 'SW', 1: 'SL', 2: 'D', 3: 'BW', 4: 'BL'})
+
+# Merge team1, team2, test and prediction results
+team1 = pd.Series(data_test['team1'])
+team2 = pd.Series(data_test['team2'])
+df = pd.concat([team1, team2, y_test, y_pred], axis=1)
+df.columns = ['team1', 'team2', 'y_test', 'y_pred']
+df.to_csv('data/df.csv', index=False)
