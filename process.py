@@ -105,7 +105,8 @@ def process(y_test, y_pred, data_test, name):
     correct = pd.Series(y_test == y_pred)
     prediction = pd.concat([date, team1, team2, y_test, y_pred, correct], axis=1)
     prediction.columns = ['Date', 'Home', 'Away', 'Result', 'Prediction', 'Correct']
+
     # Drop all BW and BL predictions
-    prediction = prediction[prediction['Prediction'] != 'BW']
-    prediction = prediction[prediction['Prediction'] != 'BL']
-    prediction.to_csv('data/prediction.csv', index=False)
+    # prediction = prediction[prediction['Prediction'] != 'BW']
+    # prediction = prediction[prediction['Prediction'] != 'BL']
+    # prediction.to_csv('data/prediction.csv', index=False)
