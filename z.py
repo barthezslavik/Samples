@@ -1,6 +1,7 @@
 import tensorflow as tf
 import pandas as pd
 import numpy as np
+import random
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 
@@ -38,17 +39,7 @@ model = tf.keras.models.Sequential([
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
 # Train the model
-model.fit(X_train, y_train, epochs=10, validation_data=(X_test, y_test))
-
-print(X_test)
-# Predict on the test set
-y_pred = model.predict(X_test)
-
-# Convert predictions to original labels
-y_pred = np.argmax(y_pred, axis=1)
-y_pred = encoder.inverse_transform(y_pred)
-# print(y_pred)
-# exit()
+model.fit(X_train, y_train, epochs=100, validation_data=(X_test, y_test))
 
 def get_z(results, model, encoder):
     z_values_balanced = {
@@ -69,6 +60,8 @@ def get_z(results, model, encoder):
         ("BL", "SW", "BW", "SW", "BL"): "BW",
     }
 
+    original_results = results
+
     # Convert ('BL', 'BL', 'BW', 'BL', 'BL') to [[0, 0, 1, 0, 0]]
     nn_results = []
     for result in results:
@@ -81,24 +74,14 @@ def get_z(results, model, encoder):
     nn_z_values = np.argmax(nn_z_values, axis=1)
     nn_z_values = encoder.inverse_transform(nn_z_values)
 
-    z_values_combined = {**z_values_balanced, **nn_z_values}
-    result = z_values_combined[results]
-    print(result)
+    # Check if the Z value is in the balanced dictionary
+    if original_results in z_values_balanced:
+        return z_values_balanced[original_results]
+    else:
+        return nn_z_values[0]
 
-    return result
-
-get_z(("BL", "BL", "BW", "BL", "BL"), model, encoder)
-
-# # Generate a random list of 5 outcomes
-# def get_random_z(model):
-#     outcomes = ["SW", "SL", "D", "BW", "BL"]
-#     results = random.choices(outcomes, k=5)
-#     print(results)
-
-#     if get_z(results, model) == "UNKNOWN":
-#         return results
-
-# # Generate a list of 1000 random Z values
-# z_list = []
-# for i in range(100):
-#     z_list.append(get_random_z(model))
+outcomes = ["SW", "SL", "D", "BW", "BL"]
+for i in range(100):
+    results = random.choices(outcomes, k=5)
+    outcome = get_z(tuple(results), model, encoder)
+    print(outcome)

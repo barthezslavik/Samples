@@ -4,7 +4,6 @@ import xgboost as xgb
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
-from sklearn.metrics import f1_score
 
 # Read in dataset
 data = pd.read_csv('data/fuzzy/fuzzy3.csv', header=0)
