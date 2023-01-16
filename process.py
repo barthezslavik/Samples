@@ -2,48 +2,40 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics import accuracy_score
 import matplotlib.pyplot as plt
-import glob
-import random
+from sklearn.model_selection import train_test_split
 
 def data():
     # Read in dataset
-    # data_train = pd.read_csv('data/fuzzy/train.csv', header=0)
-    # data_test = pd.read_csv('data/fuzzy/test.csv', header=0)
-
-    # Get random dataset
-    folders = glob.glob('data/*')
-    folder = random.choice(folders)
-
-    # print("==================================")
-    # print(folder)
-    # print("==================================")
-
-    # folder = "data/Germany_93_21"
-
-    # Split fuzzy3.csv into train and test
-    data = pd.read_csv(folder + '/fuzzy3.csv', header=0)
-    n = 3 * 38
-    data_train = data.head(n)
-    print(data_train.tail())
-    # Get 1 year of data for testing
-    data_test = data.tail(38)
-    print(data_test.head())
+    data = pd.read_csv('data/fuzzy/fuzzy3.csv', header=0)
 
     # Create a dictionary to map outcome to integer values
     outcome_map = {'SW': 0, 'SL': 1, 'D': 2, 'BW': 3, 'BL': 4}
 
     # Create a new column "outcome_num" to store the mapped outcome
-    data_train = data_train.replace(outcome_map)
-    data_test = data_test.replace(outcome_map)
+    data = data.replace(outcome_map)
 
-    X_train = data_train.drop(['date','team1','team2','y'], axis=1)
-    y_train = data_train['y']
-    X_test = data_test.drop(['date','team1','team2','y'], axis=1)
-    y_test = data_test['y']
+    # Assign the input variables to X and the output variable to y
+    X = data.drop(['date','team1','team2','y'], axis=1)
+    y = data['y']
 
-    return X_train, X_test, y_train, y_test, data_test
+    # split data into train and test set
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
-def process(y_test, y_pred, data_test, name):
+    return X_train, X_test, y_train, y_test
+
+def plot_mean(name):
+    # Plot accuracies.csv
+    accuracies = pd.read_csv(f"data/accuracies_{name}.csv", header=None)
+    accuracies.columns = ['SW', 'SL', 'D', 'BW', 'BL', 'Overall']
+
+    # Plot mean accuracy
+    accuracies.mean().plot(kind='bar')
+    plt.xlabel('Outcome')
+    plt.ylabel('Accuracy')
+    plt.savefig(f"data/mean_accuracy_{name}.png")
+    plt.close()
+
+def process(y_test, y_pred, name):
     # Convert predictions to integer values
     y_pred = np.round(y_pred).astype(int)
 
@@ -110,21 +102,16 @@ def process(y_test, y_pred, data_test, name):
         data = ','.join(map(str, data)) + "\n"
         f.write(data)
 
-    # Plot accuracies.csv
     accuracies = pd.read_csv(f"data/accuracies_{name}.csv", header=None)
     accuracies.columns = ['SW', 'SL', 'D', 'BW', 'BL', 'Overall']
-
-    # Plot mean accuracy
-    accuracies.mean().plot(kind='bar')
-    plt.xlabel('Outcome')
-    plt.ylabel('Accuracy')
-    plt.savefig(f"data/mean_accuracy_{name}.png")
 
     # Plot all accuracies
     accuracies.plot()
     plt.xlabel('Iterations')
     plt.ylabel('Accuracy')
     plt.savefig(f"data/accuracies_{name}.png")
+
+    plt.close()
 
     # restore 0 -> SW, 1 -> SL, 2 -> D, 3 -> BW, 4 -> BL
     # y_test = y_test.replace({0: 'SW', 1: 'SL', 2: 'D', 3: 'BW', 4: 'BL'})
