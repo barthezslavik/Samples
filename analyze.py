@@ -16,23 +16,23 @@ for file in glob.glob('data/*.csv'):
 for file in glob.glob('data/*.png'):
     os.remove(file)
 
-for i in range(max_range):
-    X_train, X_test, y_train, y_test = p.data()
-    # Logistic Regression model
-    lr_model = LogisticRegression()
-    lr_model.fit(X_train, y_train)
-    y_pred = lr_model.predict(X_test)
-    p.process(y_test, y_pred, 'regression')
-p.plot_mean('regression')
+# for i in range(max_range):
+#     X_train, X_test, y_train, y_test = p.data()
+#     # Logistic Regression model
+#     lr_model = LogisticRegression()
+#     lr_model.fit(X_train, y_train)
+#     y_pred = lr_model.predict(X_test)
+#     p.process(y_test, y_pred, 'regression')
+# p.plot_mean('regression')
 
-for i in range(max_range):
-    X_train, X_test, y_train, y_test = p.data()
-    # Decision Tree model
-    dt_model = DecisionTreeClassifier()
-    dt_model.fit(X_train, y_train)
-    y_pred = dt_model.predict(X_test)
-    p.process(y_test, y_pred, 'decision')
-p.plot_mean('decision')
+# for i in range(max_range):
+#     X_train, X_test, y_train, y_test = p.data()
+#     # Decision Tree model
+#     dt_model = DecisionTreeClassifier()
+#     dt_model.fit(X_train, y_train)
+#     y_pred = dt_model.predict(X_test)
+#     p.process(y_test, y_pred, 'decision')
+# p.plot_mean('decision')
 
 for i in range(max_range):
     X_train, X_test, y_train, y_test = p.data()
@@ -43,14 +43,14 @@ for i in range(max_range):
     p.process(y_test, y_pred, 'xgboost')
 p.plot_mean('xgboost')
 
-for i in range(max_range):
-    X_train, X_test, y_train, y_test = p.data()
-    # Random Forest model
-    rf_model = RandomForestClassifier()
-    rf_model.fit(X_train, y_train)
-    y_pred = rf_model.predict(X_test)
-    p.process(y_test, y_pred, 'random')
-p.plot_mean('random')
+# for i in range(max_range):
+#     X_train, X_test, y_train, y_test = p.data()
+#     # Random Forest model
+#     rf_model = RandomForestClassifier()
+#     rf_model.fit(X_train, y_train)
+#     y_pred = rf_model.predict(X_test)
+#     p.process(y_test, y_pred, 'random')
+# p.plot_mean('random')
 
 for i in range(max_range):
     X_train, X_test, y_train, y_test = p.data()
@@ -64,6 +64,6 @@ p.plot_mean('nn')
 for file in glob.glob('data/*.csv'):
     os.remove(file)
 
-for file in glob.glob('data/*.png'):
-    if 'accuracies' in file:
-        os.remove(file)
+# for file in glob.glob('data/*.png'):
+#     if 'accuracies' in file:
+#         os.remove(file)
