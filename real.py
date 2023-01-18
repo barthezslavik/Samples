@@ -64,6 +64,8 @@ y_pred2 = np.round(y_pred2).astype(int)
 # Merge y_pred and y_pred2, if y_pred == 2, use y_pred2, else use y_pred
 y_pred3 = np.where(y_pred == 2, y_pred2, y_pred)
 df = pd.DataFrame({'y_test': y_test, 'y_pred': y_pred3})
+# Drop all rows where y_pred == 0 and y_pred == 4
+df = df[(df['y_pred'] != 0) & (df['y_pred'] != 4)]
 # Add column called correct and set to 1 if y_test == y_pred
 df['correct'] = np.where(df['y_test'] == df['y_pred'], 1, 0)
 # Devide correct by total rows
@@ -91,9 +93,39 @@ df = df.drop(['Date', 'HomeTeam', 'AwayTeam'], axis=1)
 df['profit'] = np.where(df['y_pred'] == 0, df['B365A'], np.where(df['y_pred'] == 1, df['B365A'], np.where(df['y_pred'] == 2, df['B365D'], np.where(df['y_pred'] == 3, df['B365H'], np.where(df['y_pred'] == 4, df['B365H'], -1)))))
 # Set to -1 if y_test != y_pred
 df['profit'] = np.where(df['y_test'] != df['y_pred'], -1, df['profit'])
+
+# Calculate profit for each prediction
+# When y_pred == 1
+profit1 = df[df['y_pred'] == 1]['profit'].sum()
+# When y_pred == 2
+profit2 = df[df['y_pred'] == 2]['profit'].sum()
+# When y_pred == 3
+profit3 = df[df['y_pred'] == 3]['profit'].sum()
+
+# Calculate ROI for each prediction
+# When y_pred == 1
+roi1 = profit1 / df[df['y_pred'] == 1].shape[0]
+# When y_pred == 2
+roi2 = profit2 / df[df['y_pred'] == 2].shape[0]
+# When y_pred == 3
+roi3 = profit3 / df[df['y_pred'] == 3].shape[0]
+
+# Print results
+print("=====================================")
+print(f'Profit for SL: {profit1}')
+print(f'ROI for SL: {roi1}')
+print(f'Profit for D: {profit2}')
+print(f'ROI for D: {roi2}')
+print(f'Profit for SW: {profit3}')
+print(f'ROI for SW: {roi3}')
+
 # Sum profit column
 profit = df['profit'].sum()
-print(f'Profit: {profit}')
+print("=====================================")
+print(f'Total Profit: {profit}')
+# Calculate ROI
+roi = profit / df.shape[0]
+print(f'ROI: {roi}')
 
 # Write df file
 df.to_csv('data/df.csv', index=False)
