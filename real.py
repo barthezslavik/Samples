@@ -82,6 +82,19 @@ odds = odds[['Date', 'HomeTeam', 'AwayTeam', 'B365H', 'B365D', 'B365A']]
 df = pd.merge(df, odds, how='left', left_on=['date', 'team1', 'team2'], right_on=['Date', 'HomeTeam', 'AwayTeam'])
 # Drop Date, HomeTeam, AwayTeam
 df = df.drop(['Date', 'HomeTeam', 'AwayTeam'], axis=1)
+# Add profit column
+# Set to B365A if y_pred == 0
+# Set to B365A if y_pred == 1
+# Set to B365D if y_pred == 2
+# Set to B365H if y_pred == 3
+# Set to B365H if y_pred == 4
+df['profit'] = np.where(df['y_pred'] == 0, df['B365A'], np.where(df['y_pred'] == 1, df['B365A'], np.where(df['y_pred'] == 2, df['B365D'], np.where(df['y_pred'] == 3, df['B365H'], np.where(df['y_pred'] == 4, df['B365H'], -1)))))
+# Set to -1 if y_test != y_pred
+df['profit'] = np.where(df['y_test'] != df['y_pred'], -1, df['profit'])
+# Sum profit column
+profit = df['profit'].sum()
+print(f'Profit: {profit}')
+
 # Write df file
 df.to_csv('data/df.csv', index=False)
 

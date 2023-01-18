@@ -21,8 +21,6 @@ def data(country, learn_period, start_year):
         new_data = original_data[original_data['date'].str.contains(f"{start_year + i}")]
         data = pd.concat([data, new_data])
 
-    test_data = data
-
     # Assign the input variables to X and the output variable to y
     X = data.drop(['date','team1','team2','y'], axis=1)
     y = data['y']
