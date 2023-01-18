@@ -47,17 +47,29 @@ def create_odds(df):
         # Save to csv
         new_df.to_csv(f'data/odds.csv', index=False)
 
-# Neural Network model
 X_train, X_test, y_train, y_test, dataset = p.data(country, period, year)
+
+# Neural Network model
 nn_model = MLPRegressor(hidden_layer_sizes=(20, 20))
 nn_model.fit(X_train, y_train)
 y_pred = nn_model.predict(X_test)
 y_pred = np.round(y_pred).astype(int)
-df = pd.DataFrame({'y_test': y_test, 'y_pred': y_pred})
-# Drop all rows where y_pred not equal to 3
-df = df[df['y_pred'] == 3]
+
+# XGBoost model
+xgb_model = xgb.XGBClassifier()
+xgb_model.fit(X_train, y_train)
+y_pred2 = xgb_model.predict(X_test)
+y_pred2 = np.round(y_pred2).astype(int)
+
+# Merge y_pred and y_pred2, if y_pred == 2, use y_pred2, else use y_pred
+y_pred3 = np.where(y_pred == 2, y_pred2, y_pred)
+df = pd.DataFrame({'y_test': y_test, 'y_pred': y_pred3})
 # Add column called correct and set to 1 if y_test == y_pred
 df['correct'] = np.where(df['y_test'] == df['y_pred'], 1, 0)
+# Devide correct by total rows
+accuracy = df['correct'].sum() / df.shape[0]
+print(f'Accuracy: {accuracy}')
+
 # Prepend df with date, team1, team2 from corresponding rows from original dataset
 df = pd.concat([dataset.loc[df.index][['date', 'team1', 'team2']], df], axis=1)
 # Create odds file
@@ -72,11 +84,6 @@ df = pd.merge(df, odds, how='left', left_on=['date', 'team1', 'team2'], right_on
 df = df.drop(['Date', 'HomeTeam', 'AwayTeam'], axis=1)
 # Write df file
 df.to_csv('data/df.csv', index=False)
+
 # Delete odds file
 os.remove('data/odds.csv')
-
-# # XGBoost model
-# X_train, X_test, y_train, y_test, test_data = p.data(country, period, year)
-# xgb_model = xgb.XGBClassifier()
-# xgb_model.fit(X_train, y_train)
-# y_pred = xgb_model.predict(X_test)
