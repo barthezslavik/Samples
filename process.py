@@ -6,13 +6,13 @@ from sklearn.model_selection import train_test_split
 
 def data(country, learn_period, start_year):
     # Read in dataset
-    data = pd.read_csv(f"data/{country}/fuzzy3.csv", header=0)
+    dataset = pd.read_csv(f"data/{country}/fuzzy3.csv", header=0)
 
     # Create a dictionary to map outcome to integer values
     outcome_map = {'D': 0, 'SL': 1, 'BL': 2, 'SW': 3, 'BW': 4}
 
     # Create a new column "outcome_num" to store the mapped outcome
-    data = data.replace(outcome_map)
+    data = dataset.replace(outcome_map)
 
     # Get only data where date is contained in start_year + learn_period
     original_data = data
@@ -30,7 +30,7 @@ def data(country, learn_period, start_year):
     # split data into train and test set
     X_train, X_test, y_train, y_test = train_test_split(X, y, shuffle=False, test_size=0.2)
 
-    return X_train, X_test, y_train, y_test, test_data
+    return X_train, X_test, y_train, y_test, dataset
 
 def plot_mean(name, country, start_year, learn_period):
     # Plot accuracies.csv
