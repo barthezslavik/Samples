@@ -9,7 +9,7 @@ def data(country, learn_period, start_year):
     data = pd.read_csv(f"data/{country}/fuzzy3.csv", header=0)
 
     # Create a dictionary to map outcome to integer values
-    outcome_map = {'SW': 0, 'SL': 1, 'D': 2, 'BW': 3, 'BL': 4}
+    outcome_map = {'D': 0, 'SL': 1, 'BL': 2, 'SW': 3, 'BW': 4}
 
     # Create a new column "outcome_num" to store the mapped outcome
     data = data.replace(outcome_map)
@@ -32,17 +32,28 @@ def data(country, learn_period, start_year):
 
     return X_train, X_test, y_train, y_test, test_data
 
-def plot_mean(name, country):
+def plot_mean(name, country, start_year, learn_period):
     # Plot accuracies.csv
     accuracies = pd.read_csv(f"data/accuracies_{name}.csv", header=None)
-    accuracies.columns = ['SW', 'SL', 'D', 'BW', 'BL', 'Overall']
+    accuracies.columns = ['D', 'SL', 'BL', 'SW', 'BW', 'Overall']
 
     # Plot mean accuracy
     accuracies.mean().plot(kind='bar')
     plt.xlabel('Outcome')
     plt.ylabel('Accuracy')
-    plt.savefig(f"data/{country}_{name}.png")
+    plt.savefig(f"data/{country}_{name}_{start_year}_{learn_period}_.png")
     plt.close()
+
+    # round to 2 decimal places
+    values = np.round(accuracies.loc[0].values, 2)
+
+    # Join values with commas
+    values = ",".join(map(str, values))
+
+    # Append mean accuracy to mean.csv
+    with open(f"data/mean/{name}.csv", 'a') as f:
+        # For each accuracy, round to 2 decimal places
+        f.write(f"{country},{start_year},{learn_period},{values}\n")
 
 def process(y_test, y_pred, name, test_data):
     # Convert predictions to integer values
@@ -51,18 +62,17 @@ def process(y_test, y_pred, name, test_data):
     # create a dataframe with test and prediction results
     df = pd.DataFrame({'y_test': y_test, 'y_pred': y_pred})
 
-    print("")
-    print(name)
-
-    # count the number of correct predictions of 'SW' outcome
+    # Create a new column "correct" to store whether the prediction was correct
     df['correct'] = df['y_test'] == df['y_pred']
-    df_sw = df[df['y_pred'] == 0]
-    correct_sw = df_sw[df_sw['correct'] == True]
-    if len(df_sw) == 0:
-        acc_sw = ""
+
+    # count the number of correct predictions of 'D' outcome
+    df_d = df[df['y_pred'] == 0]
+    correct_d = df_d[df_d['correct'] == True]
+    if len(df_d) == 0:
+        acc_d = ""
     else:
-        acc_sw = len(correct_sw) / len(df_sw)
-    print("Accuracy for SW outcome: ", acc_sw)
+        acc_d = len(correct_d) / len(df_d)
+    print("Accuracy for D outcome: ", acc_d)
 
     # count the number of correct predictions of 'SL' outcome
     df_sl = df[df['y_pred'] == 1]
@@ -73,26 +83,8 @@ def process(y_test, y_pred, name, test_data):
         acc_sl = len(correct_sl) / len(df_sl)
     print("Accuracy for SL outcome: ", acc_sl)
 
-    # count the number of correct predictions of 'D' outcome
-    df_d = df[df['y_pred'] == 2]
-    correct_d = df_d[df_d['correct'] == True]
-    if len(df_d) == 0:
-        acc_d = ""
-    else:
-        acc_d = len(correct_d) / len(df_d)
-    print("Accuracy for D outcome: ", acc_d)
-
-    # count the number of correct predictions of 'BW' outcome
-    df_bw = df[df['y_pred'] == 3]
-    correct_bw = df_bw[df_bw['correct'] == True]
-    if len(df_bw) == 0:
-        acc_bw = ""
-    else:
-        acc_bw = len(correct_bw) / len(df_bw)
-    print("Accuracy for BW outcome: ", acc_bw)
-
     # count the number of correct predictions of 'BL' outcome
-    df_bl = df[df['y_pred'] == 4]
+    df_bl = df[df['y_pred'] == 2]
     correct_bl = df_bl[df_bl['correct'] == True]
     if len(df_bl) == 0:
         acc_bl = ""
@@ -100,19 +92,37 @@ def process(y_test, y_pred, name, test_data):
         acc_bl = len(correct_bl) / len(df_bl)
     print("Accuracy for BL outcome: ", acc_bl)
 
+    # count the number of correct predictions of 'SW' outcome
+    df_sw = df[df['y_pred'] == 3]
+    correct_sw = df_sw[df_sw['correct'] == True]
+    if len(df_sw) == 0:
+        acc_sw = ""
+    else:
+        acc_sw = len(correct_sw) / len(df_sw)
+    print("Accuracy for SW outcome: ", acc_sw)
+
+    # count the number of correct predictions of 'BW' outcome
+    df_bw = df[df['y_pred'] == 4]
+    correct_bw = df_bw[df_bw['correct'] == True]
+    if len(df_bw) == 0:
+        acc_bw = ""
+    else:
+        acc_bw = len(correct_bw) / len(df_bw)
+    print("Accuracy for BW outcome: ", acc_bw)
+
     # Calculate overall accuracy
     acc = accuracy_score(y_test, y_pred)
     print("Overall accuracy: ", acc)
 
     # Save all accuracies to a file
     with open(f"data/accuracies_{name}.csv", 'a') as f:
-        data = [acc_sw, acc_sl, acc_d, acc_bw, acc_bl, acc]
+        data = [acc_d, acc_sl, acc_bl, acc_sw, acc_bw, acc]
         # Convert list to string
         data = ','.join(map(str, data)) + "\n"
         f.write(data)
 
     accuracies = pd.read_csv(f"data/accuracies_{name}.csv", header=None)
-    accuracies.columns = ['SW', 'SL', 'D', 'BW', 'BL', 'Overall']
+    accuracies.columns = ['D', 'SL', 'BL', 'SW', 'BW', 'Overall']
 
     # Plot all accuracies
     accuracies.plot()
@@ -121,23 +131,3 @@ def process(y_test, y_pred, name, test_data):
     # plt.savefig(f"data/accuracies_{name}.png")
 
     plt.close()
-
-    # restore 0 -> SW, 1 -> SL, 2 -> D, 3 -> BW, 4 -> BL
-    y_test = y_test.replace({0: 'SW', 1: 'SL', 2: 'D', 3: 'BW', 4: 'BL'})
-    y_pred = pd.Series(y_pred).replace({0: 'SW', 1: 'SL', 2: 'D', 3: 'BW', 4: 'BL'})
-
-    # Merge team1, team2, test and prediction results
-    date = pd.Series(test_data['date'])
-    team1 = pd.Series(test_data['team1'])
-    team2 = pd.Series(test_data['team2'])
-
-    # correct = pd.Series(y_test == y_pred)
-
-    # # prediction = pd.concat([y_test, y_pred], axis=1)
-    # prediction = pd.concat([date, team1, team2, y_test, y_pred], axis=1)
-    # prediction.columns = ['Date', 'Home', 'Away', 'Prediction']
-
-    # # Drop all BW and BL predictions
-    # # prediction = prediction[prediction['Prediction'] != 'BW']
-    # # prediction = prediction[prediction['Prediction'] != 'BL']
-    # prediction.to_csv('data/prediction.csv', index=False)

@@ -99,6 +99,11 @@ lines = [line[1:6] for line in lines]
 # Write the lines in the file fuzzy2.csv
 with open("data/fuzzy/fuzzy2.csv", "w") as f:
     for line in lines:
+        if line == ['', '', '', '', '']:
+            continue
+
+        # line contains '"' remove it
+        line = [l.replace('"', '') for l in line]
         # Format the date
         line[0] = format_date(line[0])
         line.append(get_result_name(int(line[3]), int(line[4])))
