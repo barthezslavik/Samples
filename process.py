@@ -41,7 +41,7 @@ def plot_mean(name, country, start_year, learn_period):
     accuracies.mean().plot(kind='bar')
     plt.xlabel('Outcome')
     plt.ylabel('Accuracy')
-    plt.savefig(f"data/{country}_{name}_{start_year}_{learn_period}_.png")
+    # plt.savefig(f"data/{country}_{name}_{start_year}_{learn_period}_.png")
     plt.close()
 
     # round to 2 decimal places

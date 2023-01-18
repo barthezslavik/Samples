@@ -43,6 +43,7 @@ for root, dirs, files in os.walk("data/fuzzy"):
             if file.endswith(".csv"):
                 # open the file
                 with open(os.path.join(root, file)) as f:
+                    print("Processing file: ", file)
                     # read the second line
                     line = f.readlines()[1]
                     # read the second column
