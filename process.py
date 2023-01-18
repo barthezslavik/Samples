@@ -9,7 +9,7 @@ def data(country, learn_period, start_year):
     dataset = pd.read_csv(f"data/{country}/fuzzy3.csv", header=0)
 
     # Create a dictionary to map outcome to integer values
-    outcome_map = {'D': 0, 'SL': 1, 'BL': 2, 'SW': 3, 'BW': 4}
+    outcome_map = {'BL': 0, 'SL': 1, 'D': 2, 'SW': 3, 'BW': 4}
 
     # Create a new column "outcome_num" to store the mapped outcome
     data = dataset.replace(outcome_map)
@@ -35,7 +35,7 @@ def data(country, learn_period, start_year):
 def plot_mean(name, country, start_year, learn_period):
     # Plot accuracies.csv
     accuracies = pd.read_csv(f"data/accuracies_{name}.csv", header=None)
-    accuracies.columns = ['D', 'SL', 'BL', 'SW', 'BW', 'Overall']
+    accuracies.columns = ['BL', 'SL', 'D', 'SW', 'BW', 'Overall']
 
     # Plot mean accuracy
     accuracies.mean().plot(kind='bar')
@@ -74,6 +74,15 @@ def process(y_test, y_pred, name, test_data):
         acc_d = len(correct_d) / len(df_d)
     print("Accuracy for D outcome: ", acc_d)
 
+    # count the number of correct predictions of 'BL' outcome
+    df_bl = df[df['y_pred'] == 0]
+    correct_bl = df_bl[df_bl['correct'] == True]
+    if len(df_bl) == 0:
+        acc_bl = ""
+    else:
+        acc_bl = len(correct_bl) / len(df_bl)
+    print("Accuracy for BL outcome: ", acc_bl)
+
     # count the number of correct predictions of 'SL' outcome
     df_sl = df[df['y_pred'] == 1]
     correct_sl = df_sl[df_sl['correct'] == True]
@@ -82,15 +91,6 @@ def process(y_test, y_pred, name, test_data):
     else:
         acc_sl = len(correct_sl) / len(df_sl)
     print("Accuracy for SL outcome: ", acc_sl)
-
-    # count the number of correct predictions of 'BL' outcome
-    df_bl = df[df['y_pred'] == 2]
-    correct_bl = df_bl[df_bl['correct'] == True]
-    if len(df_bl) == 0:
-        acc_bl = ""
-    else:
-        acc_bl = len(correct_bl) / len(df_bl)
-    print("Accuracy for BL outcome: ", acc_bl)
 
     # count the number of correct predictions of 'SW' outcome
     df_sw = df[df['y_pred'] == 3]
@@ -122,7 +122,7 @@ def process(y_test, y_pred, name, test_data):
         f.write(data)
 
     accuracies = pd.read_csv(f"data/accuracies_{name}.csv", header=None)
-    accuracies.columns = ['D', 'SL', 'BL', 'SW', 'BW', 'Overall']
+    accuracies.columns = ['BL', 'SL', 'D', 'SW', 'BW', 'Overall']
 
     # Plot all accuracies
     accuracies.plot()
