@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import os
 from sklearn.neural_network import MLPRegressor
 import xgboost as xgb
 import process as p
@@ -8,7 +9,17 @@ country = 'spain'
 period = 9
 year = 2009
 
-def get_odds(df):
+def format_date(date):
+    date = date.replace("-", "/")
+    date = date.split("/")
+    if len(date[2]) == 2:
+        if int(date[2]) < 20:
+            date[2] = "20" + date[2]
+        else:
+            date[2] = "19" + date[2]
+    return "-".join(date)
+
+def create_odds(df):
     # Init empty dataframe
     new_df = pd.DataFrame()
     # Get years from date column
@@ -22,18 +33,19 @@ def get_odds(df):
     # Sort
     years.sort()
     # Remove '20' from each year
-    years = [str(year)[2:] for year in years]
-    # for each year, get odds from csv
+    years = [int(str(year)[2:]) for year in years]
+    # Prepend year[0] - 1
+    years.insert(0, years[0] - 1)
+    # Merge datasets for each year
     for year in years:
-        data = pd.read_csv(f'data/{country}/{year}.csv')
-        # Get only rows where team1 or team2 is in df
-        data = data[data['HomeTeam'].isin(df['team1']) | data['AwayTeam'].isin(df['team2'])]
-        # Merge df with data
-        merge_df = pd.merge(df, data, how='left', left_on=['date', 'team1', 'team2'], right_on=['Date', 'HomeTeam', 'AwayTeam'])
+        # Read csv
+        df = pd.read_csv(f'data/{country}/{year}.csv')
         # Append to new_df
-        new_df = pd.concat([merge_df])
-
-    return new_df
+        new_df = new_df.append(df)
+        # Change date format
+        new_df['Date'] = new_df['Date'].apply(format_date)
+        # Save to csv
+        new_df.to_csv(f'data/odds.csv', index=False)
 
 # Neural Network model
 X_train, X_test, y_train, y_test, dataset = p.data(country, period, year)
@@ -48,8 +60,20 @@ df = df[df['y_pred'] == 3]
 df['correct'] = np.where(df['y_test'] == df['y_pred'], 1, 0)
 # Prepend df with date, team1, team2 from corresponding rows from original dataset
 df = pd.concat([dataset.loc[df.index][['date', 'team1', 'team2']], df], axis=1)
-new_df = get_odds(df)
-new_df.to_csv('data/nn.csv', index=False)
+# Create odds file
+create_odds(df)
+# Read odds file
+odds = pd.read_csv('data/odds.csv')
+# Drop all except Date, HomeTeam, AwayTeam, B365H, B365D, B365A
+odds = odds[['Date', 'HomeTeam', 'AwayTeam', 'B365H', 'B365D', 'B365A']]
+# Merge df and odds if Date, team1, team2 match
+df = pd.merge(df, odds, how='left', left_on=['date', 'team1', 'team2'], right_on=['Date', 'HomeTeam', 'AwayTeam'])
+# Drop Date, HomeTeam, AwayTeam
+df = df.drop(['Date', 'HomeTeam', 'AwayTeam'], axis=1)
+# Write df file
+df.to_csv('data/df.csv', index=False)
+# Delete odds file
+os.remove('data/odds.csv')
 
 # # XGBoost model
 # X_train, X_test, y_train, y_test, test_data = p.data(country, period, year)
