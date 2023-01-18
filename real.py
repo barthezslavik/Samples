@@ -5,9 +5,9 @@ from sklearn.neural_network import MLPRegressor
 import xgboost as xgb
 import process as p
 
-country = 'spain'
-period = 9
-year = 2009
+country = 'england'
+period = 15
+year = 2006
 
 def format_date(date):
     date = date.replace("-", "/")
