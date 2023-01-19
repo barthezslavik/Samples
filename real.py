@@ -5,9 +5,12 @@ from sklearn.neural_network import MLPRegressor
 import xgboost as xgb
 import process as p
 
-country = 'england'
+country = 'total'
 period = 15
-year = 2006
+year = 1998
+H = 'GBH'
+D = 'GBD'
+A = 'GBA'
 
 def format_date(date):
     date = date.replace("-", "/")
@@ -28,16 +31,18 @@ def create_odds(df):
     years = [year.split('-')[-1] for year in years]
     # Unique years
     years = list(set(years))
-    # COnvert to int
+    # Convert to int
     years = [int(year) for year in years]
     # Sort
     years.sort()
     # Remove '20' from each year
     years = [int(str(year)[2:]) for year in years]
     # Prepend year[0] - 1
-    years.insert(0, years[0] - 1)
+    # years.insert(0, years[0] - 1)
     # Merge datasets for each year
     for year in years:
+        if len(str(year)) == 1:
+            year = "0" + str(year)
         # Read csv
         df = pd.read_csv(f'data/{country}/{year}.csv')
         # Append to new_df
@@ -78,21 +83,29 @@ df = pd.concat([dataset.loc[df.index][['date', 'team1', 'team2']], df], axis=1)
 create_odds(df)
 # Read odds file
 odds = pd.read_csv('data/odds.csv')
-# Drop all except Date, HomeTeam, AwayTeam, B365H, B365D, B365A
-odds = odds[['Date', 'HomeTeam', 'AwayTeam', 'B365H', 'B365D', 'B365A']]
+# Drop all except Date, HomeTeam, AwayTeam, H, D, A
+odds = odds[['Date', 'HomeTeam', 'AwayTeam', H, D, A]]
 # Merge df and odds if Date, team1, team2 match
 df = pd.merge(df, odds, how='left', left_on=['date', 'team1', 'team2'], right_on=['Date', 'HomeTeam', 'AwayTeam'])
 # Drop Date, HomeTeam, AwayTeam
 df = df.drop(['Date', 'HomeTeam', 'AwayTeam'], axis=1)
 # Add profit column
-# Set to B365A if y_pred == 0
-# Set to B365A if y_pred == 1
-# Set to B365D if y_pred == 2
-# Set to B365H if y_pred == 3
-# Set to B365H if y_pred == 4
-df['profit'] = np.where(df['y_pred'] == 0, df['B365A'], np.where(df['y_pred'] == 1, df['B365A'], np.where(df['y_pred'] == 2, df['B365D'], np.where(df['y_pred'] == 3, df['B365H'], np.where(df['y_pred'] == 4, df['B365H'], -1)))))
+# Set to A if y_pred == 0
+# Set to A if y_pred == 1
+# Set to D if y_pred == 2
+# Set to H if y_pred == 3
+# Set to H if y_pred == 4
+df['profit'] = np.where(df['y_pred'] == 0, df[A],
+    np.where(df['y_pred'] == 1, df[A],
+    np.where(df['y_pred'] == 2, df[D],
+    np.where(df['y_pred'] == 3, df[H],
+    np.where(df['y_pred'] == 4, df[H], -1)))))
+
 # Set to -1 if y_test != y_pred
 df['profit'] = np.where(df['y_test'] != df['y_pred'], -1, df['profit'])
+
+# Set to A, H or D is empty
+df['profit'] = np.where(df[A].isnull(), 0, df['profit'])
 
 # Calculate profit for each prediction
 # When y_pred == 1

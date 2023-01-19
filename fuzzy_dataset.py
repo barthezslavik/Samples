@@ -107,5 +107,5 @@ with open("data/fuzzy/fuzzy2.csv", "w") as f:
         line = [l.replace('"', '') for l in line]
         # Format the date
         line[0] = format_date(line[0])
-        line.append(get_result_name(int(line[3]), int(line[4])))
+        line.append(get_result_name(int(float(line[3])), int(float(line[4]))))
         f.write(",".join(line) + "\n")

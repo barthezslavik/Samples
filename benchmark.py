@@ -9,9 +9,6 @@ countries = ['england', 'germany', 'italy', 'spain', 'france', 'scotland', 'belg
 periods = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]
 year = 1994
 
-with open(f"results.csv", 'a') as f:
-    f.write("country,period,year,accuracy,profit1,roi1,profit2,roi2,profit3,roi3,profit,roi\n")
-
 def format_date(date):
     if type(date) == float:
         return ""
@@ -147,7 +144,7 @@ for country in countries:
             os.remove('data/odds.csv')
 
             # Write results to file
-            with open('data/results.csv', 'a') as f:
-                f.write(f'{country} {period} {year} {accuracy} {profit1} {roi1} {profit2} {roi2} {profit3} {roi3} {profit} {roi}\n')
+            with open('data/roi.csv', 'a') as f:
+                f.write(f'{country},{period},{year},{accuracy},{roi1},{roi2},{roi3},{roi}\n')
         except:
             continue
