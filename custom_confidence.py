@@ -15,8 +15,14 @@ data = data.replace(outcome_map)
 # Add column correct if y == y_pred
 data['correct'] = np.where(data['y'] == data['y_pred'], 1, 0)
 
-X = data.drop(['div', 'outcome', 'date','team1','team2','home_score','away_score','y', 'correct'], axis=1)
+# drop columns
+drop_columns = ['div', 'outcome', 'date','team1','team2','home_score','away_score','y', 'correct']
+# 'x1', 'x2', 'x3', 'x4', 'x5', 'x6', 'x7', 'x8', 'x9', 'x10', 'x11', 'x12']
+
+X = data.drop(drop_columns, axis=1)
 y = data['correct']
+
+print(data.head())
 
 # Split the data into training and test sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -33,8 +39,6 @@ df = pd.DataFrame({'y_test': y_test, 'y_pred': y_pred})
 
 # Add correct column
 df['correct'] = np.where(df['y_test'] == df['y_pred'], 1, 0)
-
-print(df.head(50))
 
 # Add column called correct and set to 1 if y_test == y_pred
 df['confidence'] = np.where(df['y_test'] == df['y_pred'], 1, 0)
