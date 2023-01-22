@@ -4,6 +4,7 @@ import os
 from sklearn.neural_network import MLPRegressor
 import xgboost as xgb
 import pickle
+from sklearn.model_selection import train_test_split
 
 country = 'custom'
 
@@ -18,7 +19,17 @@ def format_date(date):
     return "-".join(date)
 
 # Read in dataset
-dataset = pd.read_csv(f"data/{country}/fuzzy3.csv", header=0)
+dataset = pd.read_csv(f"data/fuzzy/fuzzy5.csv", header=0)
+
+# Remove all rows where 
+# y == 'BL', 'SL' and 'A' not in range 2.7 - 3.8
+# y == 'D' and 'D' not in range 2.7 - 3.8
+# y == 'SW', 'BW' and 'H' not in range 2.7 - 3.8
+dataset = dataset[(dataset['y'] != 'BL') | ((dataset['y'] == 'BL') & (dataset['A'] >= 2.7) & (dataset['A'] <= 3.8))]
+dataset = dataset[(dataset['y'] != 'SL') | ((dataset['y'] == 'SL') & (dataset['A'] >= 2.7) & (dataset['A'] <= 3.8))]
+dataset = dataset[(dataset['y'] != 'D') | ((dataset['y'] == 'D') & (dataset['D'] >= 2.7) & (dataset['D'] <= 3.8))]
+dataset = dataset[(dataset['y'] != 'SW') | ((dataset['y'] == 'SW') & (dataset['H'] >= 2.7) & (dataset['H'] <= 3.8))]
+dataset = dataset[(dataset['y'] != 'BW') | ((dataset['y'] == 'BW') & (dataset['H'] >= 2.7) & (dataset['H'] <= 3.8))]
 
 # Create a dictionary to map outcome to integer values
 outcome_map = {'BL': 0, 'SL': 1, 'D': 2, 'SW': 3, 'BW': 4}
@@ -26,19 +37,28 @@ outcome_map = {'BL': 0, 'SL': 1, 'D': 2, 'SW': 3, 'BW': 4}
 # Create a new column "outcome_num" to store the mapped outcome
 data = dataset.replace(outcome_map)
 
-# Get only data
-X_test = data.drop(['date','team1','team2','y'], axis=1)
-y_test = data['y']
+# Assign the input variables to X and the output variable to y
+X = data.drop(['div','outcome','date','team1','team2','y', 'prediction', 'home_score', 'away_score'], axis=1)
+y = data['y']
 
-print(X_test.shape)
+# split data into train and test set
+X_train, X_test, y_train, y_test = train_test_split(X, y, shuffle=False, test_size=0.2)
 
-# Load model from file 'model/nn_model.sav'
-nn_model = pickle.load(open('data/models/nn_model_new.sav', 'rb'))
+print(X_train.head())
+
+# Neural Network model
+nn_model = MLPRegressor(hidden_layer_sizes=(20, 20))
+nn_model.fit(X_train, y_train)
+# Save model to file
+pickle.dump(nn_model, open('data/models/nn_model_new.sav', 'wb'))
 y_pred = nn_model.predict(X_test)
 y_pred = np.round(y_pred).astype(int)
 
-# Load model from file 'model/xgb_model.sav'
-xgb_model = pickle.load(open('data/models/xgb_model_new.sav', 'rb'))
+# XGBoost model
+xgb_model = xgb.XGBClassifier()
+xgb_model.fit(X_train, y_train)
+# Save model to file
+pickle.dump(xgb_model, open('data/models/xgb_model_new.sav', 'wb'))
 y_pred2 = xgb_model.predict(X_test)
 y_pred2 = np.round(y_pred2).astype(int)
 
@@ -62,10 +82,3 @@ for i in range(5):
     # Replace i with outcome
     i = list(outcome_map.keys())[list(outcome_map.values()).index(i)]
     print(f'Accuracy for {i}: {accuracy}')
-
-# Add y_pred to original dataset
-dataset['prediction'] = y_pred3
-# Map y_pred back to outcome
-dataset = dataset.replace({v: k for k, v in outcome_map.items()})
-# Save to csv
-dataset.to_csv(f"data/{country}/fuzzy4.csv", index=False)

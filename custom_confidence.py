@@ -13,7 +13,7 @@ outcome_map = {'BL': 0, 'SL': 1, 'D': 2, 'SW': 3, 'BW': 4}
 data = data.replace(outcome_map)
 
 # Add column correct if y == y_pred
-data['correct'] = np.where(data['y'] == data['y_pred'], 1, 0)
+data['correct'] = np.where(data['y'] == data['prediction'], 1, 0)
 
 # drop columns
 drop_columns = ['div', 'outcome', 'date','team1','team2','home_score','away_score','y', 'correct']
@@ -32,14 +32,29 @@ clf.fit(X_train, y_train)
 # Use the trained model to predict the outcomes on the test data
 y_pred = clf.predict(X_test)
 
-# Convert the predictions to a dataframe
+print("Accuracy: ", np.sum(y_pred == y_test) / len(y_test))
+
+# Merge y_pred with y_test
 df = pd.DataFrame({'y_test': y_test, 'y_pred': y_pred})
 
-# Add correct column
-df['correct'] = np.where(df['y_test'] == df['y_pred'], 1, 0)
+# Get the index of the selected rows
+index = df.index
 
-# Add column called correct and set to 1 if y_test == y_pred
-df['confidence'] = np.where(df['y_test'] == df['y_pred'], 1, 0)
+# Get the rows from the original dataset
+df = data.iloc[index]
 
-# Show accuracy for each outcome
-print(df.groupby('y_test')['correct'].sum() / df.groupby('y_test')['correct'].count())
+# Merge y_pred with original dataset
+df = pd.merge(df, pd.DataFrame({'y_pred': y_pred}), left_index=True, right_index=True)
+
+# Drop all rows where y_pred != 1
+df = df[df['y_pred'] == 0]
+
+# Drop all rows where prediction == 2
+df = df[df['prediction'] != 2]
+
+# Calculate accuracy for correct column
+accuracy = df['correct'].sum() / df.shape[0]
+print(f'Accuracy: {accuracy}')
+
+# Save to csv
+df.to_csv('data/fuzzy/predictions.csv', index=False)
