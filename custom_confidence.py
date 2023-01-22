@@ -22,8 +22,6 @@ drop_columns = ['div', 'outcome', 'date','team1','team2','home_score','away_scor
 X = data.drop(drop_columns, axis=1)
 y = data['correct']
 
-print(data.head())
-
 # Split the data into training and test sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
@@ -43,5 +41,5 @@ df['correct'] = np.where(df['y_test'] == df['y_pred'], 1, 0)
 # Add column called correct and set to 1 if y_test == y_pred
 df['confidence'] = np.where(df['y_test'] == df['y_pred'], 1, 0)
 
-# Devide correct by total rows
-print(df['confidence'].sum() / df['confidence'].count())
+# Show accuracy for each outcome
+print(df.groupby('y_test')['correct'].sum() / df.groupby('y_test')['correct'].count())
