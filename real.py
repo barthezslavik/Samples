@@ -5,7 +5,7 @@ from sklearn.neural_network import MLPRegressor
 import xgboost as xgb
 import process as p
 
-country = 'total'
+country = 'belgium'
 period = 15
 year = 1998
 H = 'GBH'
