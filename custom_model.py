@@ -19,7 +19,7 @@ def format_date(date):
     return "-".join(date)
 
 # Read in dataset
-dataset = pd.read_csv(f"data/{country}/fuzzy3.csv", header=0)
+dataset = pd.read_csv(f"data/train.csv", header=0)
 
 # Create a dictionary to map outcome to integer values
 outcome_map = {'BL': 0, 'SL': 1, 'D': 2, 'SW': 3, 'BW': 4}
@@ -28,7 +28,7 @@ outcome_map = {'BL': 0, 'SL': 1, 'D': 2, 'SW': 3, 'BW': 4}
 data = dataset.replace(outcome_map)
 
 # Assign the input variables to X and the output variable to y
-X = data.drop(['date','team1','team2','y'], axis=1)
+X = data.drop(['div','outcome', 'date','team1','team2','y','prediction', 'home_score', 'away_score','H','D','A'], axis=1)
 y = data['y']
 
 # split data into train and test set
@@ -38,7 +38,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, shuffle=False, test_si
 nn_model = MLPRegressor(hidden_layer_sizes=(20, 20))
 nn_model.fit(X_train, y_train)
 # Save model to file
-pickle.dump(nn_model, open('data/models/nn_model_new.sav', 'wb'))
+pickle.dump(nn_model, open('data/models/nn_model_new.sav', 'wb'))   
 y_pred = nn_model.predict(X_test)
 y_pred = np.round(y_pred).astype(int)
 

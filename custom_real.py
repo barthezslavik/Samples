@@ -5,7 +5,7 @@ from sklearn.neural_network import MLPRegressor
 import xgboost as xgb
 import pickle
 
-country = 'custom'
+country = 'fuzzy'
 
 def format_date(date):
     date = date.replace("-", "/")

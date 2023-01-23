@@ -25,11 +25,11 @@ dataset = pd.read_csv(f"data/fuzzy/fuzzy5.csv", header=0)
 # y == 'BL', 'SL' and 'A' not in range 2.7 - 3.8
 # y == 'D' and 'D' not in range 2.7 - 3.8
 # y == 'SW', 'BW' and 'H' not in range 2.7 - 3.8
-dataset = dataset[(dataset['y'] != 'BL') | ((dataset['y'] == 'BL') & (dataset['A'] >= 2.7) & (dataset['A'] <= 3.8))]
-dataset = dataset[(dataset['y'] != 'SL') | ((dataset['y'] == 'SL') & (dataset['A'] >= 2.7) & (dataset['A'] <= 3.8))]
-dataset = dataset[(dataset['y'] != 'D') | ((dataset['y'] == 'D') & (dataset['D'] >= 2.7) & (dataset['D'] <= 3.8))]
-dataset = dataset[(dataset['y'] != 'SW') | ((dataset['y'] == 'SW') & (dataset['H'] >= 2.7) & (dataset['H'] <= 3.8))]
-dataset = dataset[(dataset['y'] != 'BW') | ((dataset['y'] == 'BW') & (dataset['H'] >= 2.7) & (dataset['H'] <= 3.8))]
+# dataset = dataset[(dataset['y'] != 'BL') | ((dataset['y'] == 'BL') & (dataset['A'] >= 2.7) & (dataset['A'] <= 3.8))]
+# dataset = dataset[(dataset['y'] != 'SL') | ((dataset['y'] == 'SL') & (dataset['A'] >= 2.7) & (dataset['A'] <= 3.8))]
+# dataset = dataset[(dataset['y'] != 'D') | ((dataset['y'] == 'D') & (dataset['D'] >= 2.7) & (dataset['D'] <= 3.8))]
+# dataset = dataset[(dataset['y'] != 'SW') | ((dataset['y'] == 'SW') & (dataset['H'] >= 2.7) & (dataset['H'] <= 3.8))]
+# dataset = dataset[(dataset['y'] != 'BW') | ((dataset['y'] == 'BW') & (dataset['H'] >= 2.7) & (dataset['H'] <= 3.8))]
 
 # Create a dictionary to map outcome to integer values
 outcome_map = {'BL': 0, 'SL': 1, 'D': 2, 'SW': 3, 'BW': 4}
@@ -38,7 +38,7 @@ outcome_map = {'BL': 0, 'SL': 1, 'D': 2, 'SW': 3, 'BW': 4}
 data = dataset.replace(outcome_map)
 
 # Assign the input variables to X and the output variable to y
-X = data.drop(['div','outcome','date','team1','team2','y', 'prediction', 'home_score', 'away_score'], axis=1)
+X = data.drop(['div','outcome','date','team1','team2','y', 'prediction', 'home_score', 'away_score','H','D','A'], axis=1)
 y = data['y']
 
 # split data into train and test set
