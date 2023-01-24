@@ -15,7 +15,7 @@ def format_date(date):
     return "-".join(date)
 
 # Read in dataset
-dataset = pd.read_csv(f"data/171000_train.csv", header=0)
+dataset = pd.read_csv(f"data/test.csv", header=0)
 
 # Create a dictionary to map outcome to integer values
 outcome_map = {'BL': 0, 'SL': 1, 'D': 2, 'SW': 3, 'BW': 4}
@@ -73,6 +73,9 @@ df['coef'] = dataset['D']
 
 df = df[df['coef'] < 10]
 
+# Cut first 10000 rows
+# df = df.iloc[7000:]
+
 # If correct == 1, set win = (coef - 1)
 df.loc[df['correct'] == 1, 'win'] = df['coef'] - 1
 
@@ -94,6 +97,10 @@ print(f'ROI: {roi}')
 df.to_csv('data/global_prediction.csv', index=False)
 
 # Plot correlation between correct and coef
-sns.set(style="whitegrid")
-ax = sns.boxplot(x="correct", y="coef", data=df)
+# sns.set(style="whitegrid")
+# ax = sns.boxplot(x="correct", y="coef", data=df)
+# plt.show()
+
+# Plot chart of win
+df['win'].cumsum().plot()
 plt.show()

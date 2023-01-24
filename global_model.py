@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 
 # Read in dataset
-dataset = pd.read_csv(f"data/123000_train.csv", header=0)
+dataset = pd.read_csv(f"data/train.csv", header=0)
 
 # Create a dictionary to map outcome to integer values
 outcome_map = {'BL': 0, 'SL': 1, 'D': 2, 'SW': 3, 'BW': 4}
