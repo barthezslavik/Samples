@@ -3,9 +3,12 @@ from multiprocessing import Pool
 import pandas as pd
 
 iteration = 0;
-limit = 1000;
+# limit = 10000;
 dataset = pd.read_csv("data/global.csv")
-dataset = dataset[:limit]
+# Drop FTR
+dataset = dataset.drop("FTR", axis=1)
+# dataset = dataset[:limit]
+offset = 0
 
 def invert_result_for_away_team(result):
     result = clear(result)
@@ -55,6 +58,8 @@ def hh(dataset, team1, team2, date):
 def build_dataset(dataset):
     # For each line in the dataset
     for index, row in dataset.iterrows():
+        if index < offset:
+            continue
         # Print the iteration
         print("Iteration: " + str(index) + '/' + str(len(dataset)))
         # Get the history for the home team
@@ -100,11 +105,9 @@ def build_dataset(dataset):
         if pd.isnull(dataset.at[index, "x1"]) or pd.isnull(dataset.at[index, "x2"]) or pd.isnull(dataset.at[index, "x3"]) or pd.isnull(dataset.at[index, "x4"]) or pd.isnull(dataset.at[index, "x5"]) or pd.isnull(dataset.at[index, "x6"]) or pd.isnull(dataset.at[index, "x7"]) or pd.isnull(dataset.at[index, "x8"]) or pd.isnull(dataset.at[index, "x9"]) or pd.isnull(dataset.at[index, "x10"]) or pd.isnull(dataset.at[index, "x11"]) or pd.isnull(dataset.at[index, "x12"]) or pd.isnull(dataset.at[index, "Y"]):
             dataset = dataset.drop(index)
 
-
-    # Drop FTR
-    dataset = dataset.drop("FTR", axis=1)
-
-    # Save the dataset
-    dataset.to_csv("data/global_train.csv", index=False)
+        if index % 1000 == 0:
+            print("Saving dataset")
+            # Save the dataset
+            dataset.to_csv(f'data/global/{index}_train.csv', index=False)
 
 build_dataset(dataset)
