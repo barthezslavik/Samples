@@ -1,9 +1,8 @@
 import numpy as np
 import pandas as pd
-import os
-from sklearn.neural_network import MLPRegressor
-import xgboost as xgb
 import pickle
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 def format_date(date):
     date = date.replace("-", "/")
@@ -56,18 +55,23 @@ print(f'Accuracy: {accuracy}')
 # Add column win = -1
 df['win'] = -1
 
-# Remove all except y_pred = D
-df = df[df['y_pred'] == 'D']
-
-# Add column coef and set to D from original dataset
-df['coef'] = dataset['D']
-
-# Remove all except y_pred = SL
+# # Bet on SL
+# print("Bet on SL")
 # df = df[df['y_pred'] == 'SL']
-
-# # Add column coef and set to A from original dataset
 # df['coef'] = dataset['A']
 
+# Bet on D
+print("Bet on D")
+df = df[df['y_pred'] == 'D']
+df['coef'] = dataset['D']
+
+# # Remove all except y_pred = SW
+# df = df[df['y_pred'] == 'SW']
+
+# # Add column coef and set to A from original dataset
+# df['coef'] = dataset['H']
+
+df = df[df['coef'] < 10]
 
 # If correct == 1, set win = (coef - 1)
 df.loc[df['correct'] == 1, 'win'] = df['coef'] - 1
@@ -79,9 +83,17 @@ print(f'Total win: {total_win}')
 accuracy = df['correct'].sum() / df.shape[0]
 print(f'Accuracy: {accuracy}')
 
+# Total bets
+print(f'Total bets: {df.shape[0]}')
+
 # Calculate roi
 roi = total_win / df.shape[0]
 print(f'ROI: {roi}')
 
 # Save data to csv
 df.to_csv('data/global_prediction.csv', index=False)
+
+# Plot correlation between correct and coef
+sns.set(style="whitegrid")
+ax = sns.boxplot(x="correct", y="coef", data=df)
+plt.show()
