@@ -4,19 +4,8 @@ import pickle
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-def format_date(date):
-    date = date.replace("-", "/")
-    date = date.split("/")
-    if len(date[2]) == 2:
-        if int(date[2]) < 20:
-            date[2] = "20" + date[2]
-        else:
-            date[2] = "19" + date[2]
-    return "-".join(date)
-
 # Read in dataset
 dataset = pd.read_csv(f"data/test.csv", header=0)
-
 
 print(f'Number of rows: {len(dataset)}')
 
