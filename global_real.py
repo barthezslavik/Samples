@@ -23,8 +23,8 @@ dataset['Date'] = pd.to_datetime(dataset['Date'], format='%d-%m-%Y')
 # Add column year
 dataset['year'] = dataset['Date'].dt.year
 
-# Drop rows where year != 2022
-# dataset = dataset[(dataset['year'] == 2020)]
+# Drop rows where year not in [2018, 2019, 2020, 2021, 2022]
+dataset = dataset[dataset['year'].isin([2018, 2019, 2020, 2021, 2022])]
 
 # Sort by Date
 dataset = dataset.sort_values(by=['Date'])
@@ -114,6 +114,9 @@ print(f'ROI: {roi}')
 
 # Merge with original dataset
 df = pd.merge(df, dataset, left_index=True, right_index=True)
+
+# Save data to new dataset
+df.to_csv('data/new_global_prediction.csv', index=False)
 
 # Drop all columns except Date, HomeTeam, AwayTeam, y_test, y_pred, correct, coef, win
 df = df.drop(['Div','FTAG','FTHG','H', 'A', 'D','Y'], axis=1)
