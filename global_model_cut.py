@@ -17,6 +17,9 @@ def format_date(date):
 # Read in dataset
 dataset = pd.read_csv(f"data/test.csv", header=0)
 
+
+print(f'Number of rows: {len(dataset)}')
+
 # Transorm Date to_datetime
 dataset['Date'] = pd.to_datetime(dataset['Date'], format='%d-%m-%Y')
 
@@ -24,12 +27,10 @@ dataset['Date'] = pd.to_datetime(dataset['Date'], format='%d-%m-%Y')
 dataset['year'] = dataset['Date'].dt.year
 
 # Drop rows where year not in [2018, 2019, 2020, 2021, 2022]
-# dataset = dataset[dataset['year'].isin([2018, 2019, 2020, 2021, 2022])]
+dataset = dataset[dataset['year'].isin([2018, 2019, 2020, 2021, 2022])]
 
 # Sort by Date
 dataset = dataset.sort_values(by=['Date'])
-
-print(f'Number of rows: {len(dataset)}')
 
 # Create a dictionary to map outcome to integer values
 outcome_map = {'BL': 0, 'SL': 1, 'D': 2, 'SW': 3, 'BW': 4}
@@ -117,10 +118,3 @@ print(f'Total win: {total_win}')
 # Calculate ROI
 roi = total_win / len(df4)
 print(f'ROI: {roi}')
-
-# Reset index
-df4 = df4.reset_index(drop=True)
-
-# Plot total win
-df4['win'].cumsum().plot()
-plt.show()
