@@ -17,15 +17,31 @@ def format_date(date):
 # Read in dataset
 dataset = pd.read_csv(f"data/test.csv", header=0)
 
+# Transorm Date to_datetime
+dataset['Date'] = pd.to_datetime(dataset['Date'], format='%d-%m-%Y')
+
+# Add column year
+dataset['year'] = dataset['Date'].dt.year
+
+# Drop rows where year != 2022
+# dataset = dataset[(dataset['year'] == 2020)]
+
+# Sort by Date
+dataset = dataset.sort_values(by=['Date'])
+
 # Create a dictionary to map outcome to integer values
 outcome_map = {'BL': 0, 'SL': 1, 'D': 2, 'SW': 3, 'BW': 4}
 
 # Create a new column "outcome_num" to store the mapped outcome
 data = dataset.replace(outcome_map)
 
+print(data)
+
 # Get only data
-X_test = data.drop(['Date','Div', 'HomeTeam','AwayTeam','FTAG','FTHG','H', 'A', 'D','Y'], axis=1)
+X_test = data.drop(['Date','Div', 'year', 'HomeTeam','AwayTeam','FTAG','FTHG','H', 'A', 'D','Y'], axis=1)
 y_test = data['Y']
+
+print(X_test)
 
 # Load model from file 'model/nn_model.sav'
 nn_model = pickle.load(open('data/models/nn_model_global.sav', 'rb'))
@@ -37,6 +53,9 @@ xgb_model = pickle.load(open('data/models/xgb_model_global.sav', 'rb'))
 y_pred2 = xgb_model.predict(X_test)
 y_pred2 = np.round(y_pred2).astype(int)
 
+print(y_pred)
+print(y_pred2)
+
 # Merge y_pred and y_pred2, if y_pred == 3, use y_pred2, else use y_pred
 y_pred3 = np.where(y_pred == 2, y_pred2, y_pred)
 df = pd.DataFrame({'y_test': y_test, 'y_pred': y_pred3})
@@ -45,6 +64,9 @@ df = df[(df['y_pred'] != 0) & (df['y_pred'] != 4)]
 
 # Replace predicted outcome with value from outcome_map
 df = df.replace({v: k for k, v in outcome_map.items()})
+
+# Set all y_pred to D if y_pred != SW'
+df.loc[df['y_pred'] != 'SW', 'y_pred'] = 'D'
 
 # Add column called correct and set to 1 if y_test == y_pred
 df['correct'] = np.where(df['y_test'] == df['y_pred'], 1, 0)
@@ -73,11 +95,8 @@ df['coef'] = dataset['D']
 
 df = df[df['coef'] < 10]
 
-# Cut first 10000 rows
-# df = df.iloc[7000:]
-
 # If correct == 1, set win = (coef - 1)
-df.loc[df['correct'] == 1, 'win'] = df['coef'] - 1
+df.loc[df['correct'] == 1, 'win'] = (df['coef'] - 1)
 
 # Sum win column
 total_win = df['win'].sum()
@@ -93,6 +112,15 @@ print(f'Total bets: {df.shape[0]}')
 roi = total_win / df.shape[0]
 print(f'ROI: {roi}')
 
+# Merge with original dataset
+df = pd.merge(df, dataset, left_index=True, right_index=True)
+
+# Drop all columns except Date, HomeTeam, AwayTeam, y_test, y_pred, correct, coef, win
+df = df.drop(['Div','FTAG','FTHG','H', 'A', 'D','Y'], axis=1)
+
+# Change order of columns
+df = df[['Date', 'HomeTeam', 'AwayTeam', 'y_test', 'y_pred', 'correct', 'coef', 'win']]
+
 # Save data to csv
 df.to_csv('data/global_prediction.csv', index=False)
 
@@ -100,6 +128,9 @@ df.to_csv('data/global_prediction.csv', index=False)
 # sns.set(style="whitegrid")
 # ax = sns.boxplot(x="correct", y="coef", data=df)
 # plt.show()
+
+# Reset index
+df = df.reset_index(drop=True)
 
 # Plot chart of win
 df['win'].cumsum().plot()

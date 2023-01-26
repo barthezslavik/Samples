@@ -39,7 +39,7 @@ y_pred = np.round(y_pred).astype(int)
 xgb_model = xgb.XGBClassifier()
 xgb_model.fit(X_train, y_train)
 # Save model to file
-pickle.dump(xgb_model, open('data/models/xgb_model_new.sav', 'wb'))
+pickle.dump(xgb_model, open('data/models/xgb_model_global.sav', 'wb'))
 y_pred2 = xgb_model.predict(X_test)
 y_pred2 = np.round(y_pred2).astype(int)
 
