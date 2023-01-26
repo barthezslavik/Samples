@@ -66,6 +66,7 @@ df['win'].cumsum().plot()
 
 # Merge df and data
 df2 = df.merge(data, left_index=True, right_index=True)
+print(f'Number of rows: {len(df2)}')
 
 # Drop all rows except y_pred, y_test, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12
 df2 = df2.drop(['HH', 'H_x', 'H_y', 'win', 'Date','Div', 'HomeTeam','AwayTeam','FTAG','FTHG', 'A', 'D','Y'], axis=1)
@@ -87,3 +88,10 @@ yy_pred = np.round(yy_pred).astype(int)
 # Calculate accuracy
 accuracy = np.sum(yy_pred == y_test) / len(y_test)
 print(f'Accuracy: {accuracy}')
+
+# Add column win and set = (H - 1) if y_test == 1 else -1
+df2['win'] = np.where(df2['y_test'] == 1, df['H'] - 1, -1)
+
+# Plot win column
+df2['win'].cumsum().plot()
+plt.show()
