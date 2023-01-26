@@ -24,7 +24,7 @@ y = data['correct']
 xgb_model = xgb.XGBClassifier()
 xgb_model.fit(X, y)
 # Save model to file
-pickle.dump(xgb_model, open('data/models/xgb_global_filter.sav', 'wb'))
+pickle.dump(xgb_model, open('data/models/xgb_global_model_filter.sav', 'wb'))
 y_pred = xgb_model.predict(X)
 y_pred = np.round(y).astype(int)
 

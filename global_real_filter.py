@@ -24,7 +24,7 @@ X = data.drop(['correct', 'y_test','y_pred', 'win', 'coef', 'Date', 'Div', 'year
 y = data['correct']
 
 # Load model from file 'model/xgb_model.sav'
-xgb_model = pickle.load(open('data/models/xgb_global_filter.sav', 'rb'))
+xgb_model = pickle.load(open('data/models/xgb_global_real_filter.sav', 'rb'))
 y_pred = xgb_model.predict(X)
 y_pred = np.round(y_pred).astype(int)
 

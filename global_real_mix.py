@@ -65,7 +65,7 @@ X = df2.drop(['correct'], axis=1)
 y = df2['correct']
 
 # Load model from file 'model/xgb_model.sav'
-xgb_model = pickle.load(open('data/models/xgb_global_filter.sav', 'rb'))
+xgb_model = pickle.load(open('data/models/xgb_global_model_filter.sav', 'rb'))
 
 # Predict outcome
 yy_pred = xgb_model.predict(X)
