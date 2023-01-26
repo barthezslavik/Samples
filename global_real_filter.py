@@ -22,9 +22,14 @@ y = data['correct']
 
 print(X.head())
 
-# Load model from file 'model/nn_model.sav'
-nn_model = pickle.load(open('data/models/nn_global_filter.sav', 'rb'))
-y_pred = nn_model.predict(X)
+# # Load model from file 'model/nn_model.sav'
+# nn_model = pickle.load(open('data/models/nn_global_filter.sav', 'rb'))
+# y_pred = nn_model.predict(X)
+# y_pred = np.round(y_pred).astype(int)
+
+# Load model from file 'model/xgb_model.sav'
+xgb_model = pickle.load(open('data/models/xgb_global_filter.sav', 'rb'))
+y_pred = xgb_model.predict(X)
 y_pred = np.round(y_pred).astype(int)
 
 # Accuracy y_pred
@@ -35,3 +40,6 @@ df['ycorrect'] = np.where(df['y_test'] == df['y_pred'], 1, 0)
 # Calculate accuracy
 accuracy = df['ycorrect'].sum() / df['ycorrect'].count()
 print(f'Accuracy: {accuracy}')
+
+# Save predictions to csv
+df.to_csv('data/filter_prediction.csv', index=False)

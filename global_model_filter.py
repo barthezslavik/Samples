@@ -22,21 +22,21 @@ y = data['correct']
 
 print(X.shape)
 
-# Neural Network model
-nn_model = MLPRegressor(hidden_layer_sizes=(100, 100, 100), activation='relu', solver='adam', max_iter=1000, random_state=1)
-nn_model.fit(X, y)
-# Save model to file
-pickle.dump(nn_model, open('data/models/nn_global_filter.sav', 'wb'))
-y_pred = nn_model.predict(X)
-y_pred = np.round(y_pred).astype(int)
-
-# # XGBoost model
-# xgb_model = xgb.XGBClassifier()
-# xgb_model.fit(X, y)
+# # Neural Network model
+# nn_model = MLPRegressor(hidden_layer_sizes=(100, 100, 100), activation='relu', solver='adam', max_iter=1000, random_state=1)
+# nn_model.fit(X, y)
 # # Save model to file
-# pickle.dump(xgb_model, open('data/models/xgb_global_filter.sav', 'wb'))
-# y_pred = xgb_model.predict(X)
-# y_pred = np.round(y).astype(int)
+# pickle.dump(nn_model, open('data/models/nn_global_filter.sav', 'wb'))
+# y_pred = nn_model.predict(X)
+# y_pred = np.round(y_pred).astype(int)
+
+# XGBoost model
+xgb_model = xgb.XGBClassifier()
+xgb_model.fit(X, y)
+# Save model to file
+pickle.dump(xgb_model, open('data/models/xgb_global_filter.sav', 'wb'))
+y_pred = xgb_model.predict(X)
+y_pred = np.round(y).astype(int)
 
 # Accuracy y_pred
 df = pd.DataFrame({'y_test': y, 'y_pred': y_pred})
