@@ -79,10 +79,6 @@ df3 = pd.merge(df, pd.DataFrame({'yy_pred': yy_pred}), left_index=True, right_in
 # Drop all rows where yy_pred == 0
 df3 = df3[df3['yy_pred'] == 1]
 
-# Calculate accuracy y_test == 2 / rows count
-# accuracy = (df3['y_test'] == 2).sum() / len(df3)
-# print(accuracy)
-
 # Calculate accuracy for correct
 accuracy = (df3['correct'] == 1).sum() / len(df3)
 print("Accuracy: ", accuracy)
