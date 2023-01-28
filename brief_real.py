@@ -24,10 +24,13 @@ print("Length of data: ", len(data))
 X_test = data.drop(['Date','Div', 'HomeTeam','AwayTeam','FTAG','FTHG','Y'], axis=1)
 y_test = data['Y']
 
-xgb_model = xgb.XGBClassifier()
+print(X_test.head())
+
+#xgb_model = xgb.XGBClassifier()
 
 # Load model from file 'data/models/xgb_brief.sav'
-xgb_model.load_model('data/models/xgb_brief.sav')
+#xgb_model.load_model('data/models/xgb_brief.sav')
+xgb_model = pickle.load(open('data/models/xgb_brief.sav', 'rb'))
 y_pred = xgb_model.predict(X_test)
 
 # Replace BW -> SW, BL -> SL
@@ -120,4 +123,4 @@ print("Total number of bets: ", total_bets)
 # Plot the profit
 d_pred = d_pred.reset_index(drop=True)
 plt.plot(d_pred['Profit'].cumsum())
-plt.show()
+# plt.show()

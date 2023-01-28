@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import xgboost as xgb
+import pickle
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 
@@ -39,7 +40,8 @@ xgb_model = xgb.XGBClassifier()
 xgb_model.fit(X_train, y_train, verbose=True)
 
 # Save the model
-xgb_model.save_model("data/models/xgb_brief.sav")
+# xgb_model.save_model("data/models/xgb_brief.sav")
+pickle.dump(xgb_model, open("data/models/xgb_brief.sav", 'wb'))
 
 xgb_model.fit(X_train, y_train, verbose=True)
 
