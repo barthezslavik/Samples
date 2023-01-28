@@ -2,9 +2,12 @@ import pandas as pd
 import numpy as np
 import xgboost as xgb
 from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
+
+pd.options.mode.chained_assignment = None
 
 # Load the data
-data = pd.read_csv("data/good/train.csv")
+data = pd.read_csv("data/good/100000_train.csv")
 
 print("Length of data: ", len(data))
 
@@ -28,9 +31,15 @@ y = data['Y']
 # Split the data into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
+# XGBoost model
 xgb_model = xgb.XGBClassifier()
 
 # Fit the model with the custom loss function
+xgb_model.fit(X_train, y_train, verbose=True)
+
+# Save the model
+xgb_model.save_model("data/models/xgb_brief.sav")
+
 xgb_model.fit(X_train, y_train, verbose=True)
 
 # Make predictions
@@ -56,15 +65,55 @@ data_pred['Y'][data_pred['Y'] == 0] = 1
 # Merge with H, D, A
 data_pred = data_pred.merge(data[['H', 'D', 'A']], left_index=True, right_index=True)
 
-# Drop all rows where Y_pred != 3
+base_pred = data_pred
+
+# Drop all rows where Y_pred == 3
 data_pred = data_pred[data_pred['Y_pred'] == 3]
 
-print("Length of data: ", len(data_pred))
+print("Total bets on H: ", len(data_pred))
 
 # Add a column for the profit, set = (H - 1) if Y = 3 and -1 otherwise
 data_pred['Profit'] = np.where(data_pred['Y'] == 3, data_pred['H'] - 1, -1)
 
-print(data_pred)
+# Calculate the total profit
+print("Total profit H: ", data_pred['Profit'].sum())
+
+# ROI
+print("ROI H: ", (data_pred['Profit'].sum() / len(data_pred)) * 100)
+
+data_pred = base_pred
+
+# Drop all rows where Y_pred == 2
+data_pred = data_pred[data_pred['Y_pred'] == 2]
+
+print("Total bets on D: ", len(data_pred))
+
+# Add a column for the profit, set = (H - 1) if Y = 3 and -1 otherwise
+data_pred['Profit'] = np.where(data_pred['Y'] == 2, data_pred['D'] - 1, -1)
 
 # Calculate the total profit
-print("Total profit: ", data_pred['Profit'].sum())
+print("Total profit D: ", data_pred['Profit'].sum())
+
+# ROI
+print("ROI D: ", (data_pred['Profit'].sum() / len(data_pred)) * 100)
+
+data_pred = base_pred
+
+# Drop all rows where Y_pred == 1
+data_pred = data_pred[data_pred['Y_pred'] == 1]
+
+print("Total bets on A: ", len(data_pred))
+
+# Add a column for the profit, set = (H - 1) if Y = 3 and -1 otherwise
+data_pred['Profit'] = np.where(data_pred['Y'] == 1, data_pred['A'] - 1, -1)
+
+# Calculate the total profit
+print("Total profit A: ", data_pred['Profit'].sum())
+
+# ROI
+print("ROI A: ", (data_pred['Profit'].sum() / len(data_pred)) * 100)
+
+# # Plot the profit
+# data_pred = data_pred.reset_index(drop=True)
+# plt.plot(data_pred['Profit'].cumsum())
+# plt.show()
