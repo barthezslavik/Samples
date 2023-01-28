@@ -6,8 +6,14 @@ from sklearn.model_selection import train_test_split
 # Load the data
 data = pd.read_csv("data/good/train.csv")
 
+print("Length of data: ", len(data))
+
 # Drop all rows where H < 2 or A < 2
-data = data[(data['H'] >= 2) & (data['A'] >= 2)]
+data = data[(data['H'] >= 2) & (data['A'] >= 2)] # -> H 
+# data = data[(data['H'] >= 1.6) & (data['A'] >= 1.6)] # -> H 
+# data = data[(data['H'] >= 2.4) & (data['A'] >= 2.4)] # -> D
+
+print("Length of data: ", len(data))
 
 # Create a dictionary to map outcome to integer values
 outcome_map = {'BL': 0, 'SL': 1, 'D': 2, 'SW': 3, 'BW': 4}
@@ -39,3 +45,26 @@ acc = np.zeros(5)
 for i in range(5):
     acc[i] = np.mean(y_pred[y_test == i] == y_test[y_test == i])
     print(f"Accuracy for outcome {i}: {acc[i]}")
+
+# Merge the predictions with original data
+data_pred = pd.DataFrame({'Y': y_test, 'Y_pred': y_pred})
+
+# Replace the Y = 4 and Y = 0 with 3 and 1
+data_pred['Y'][data_pred['Y'] == 4] = 3
+data_pred['Y'][data_pred['Y'] == 0] = 1
+
+# Merge with H, D, A
+data_pred = data_pred.merge(data[['H', 'D', 'A']], left_index=True, right_index=True)
+
+# Drop all rows where Y_pred != 3
+data_pred = data_pred[data_pred['Y_pred'] == 3]
+
+print("Length of data: ", len(data_pred))
+
+# Add a column for the profit, set = (H - 1) if Y = 3 and -1 otherwise
+data_pred['Profit'] = np.where(data_pred['Y'] == 3, data_pred['H'] - 1, -1)
+
+print(data_pred)
+
+# Calculate the total profit
+print("Total profit: ", data_pred['Profit'].sum())
