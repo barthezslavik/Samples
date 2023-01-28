@@ -1,69 +1,51 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
+import pickle
 import xgboost as xgb
-from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 
 pd.options.mode.chained_assignment = None
 
-# Load the data
-data = pd.read_csv("data/good/test.csv")
-
-print("Length of data: ", len(data))
-
-# Drop all rows where H < 2 or A < 2
-data = data[(data['H'] >= 2) & (data['A'] >= 2)] # -> H 
-# data = data[(data['H'] >= 1.6) & (data['A'] >= 1.6)] # -> H 
-# data = data[(data['H'] >= 2.4) & (data['A'] >= 2.4)] # -> D
+# Read in dataset
+dataset = pd.read_csv(f"data/good/train.csv", header=0)
 
 # Drop all rows where H, D, A equal NaN
-data = data.dropna(subset=['H', 'D', 'A'])
-
-print("Length of data: ", len(data))
+dataset = dataset.dropna(subset=['H', 'D', 'A'])
 
 # Create a dictionary to map outcome to integer values
 outcome_map = {'BL': 0, 'SL': 1, 'D': 2, 'SW': 3, 'BW': 4}
 
 # Create a new column "outcome_num" to store the mapped outcome
-data = data.replace(outcome_map)
+data = dataset.replace(outcome_map)
 
-# Define the features and target
-X = data[['H', 'D', 'A', 'x1', 'x2', 'x3', 'x4', 'x5', 'x6', 'x7', 'x8', 'x9', 'x10', 'x11', 'x12']]
-y = data['Y']
+print(data)
 
-# Split the data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# Get only data
+X_test = data.drop(['Date','Div', 'HomeTeam','AwayTeam','FTAG','FTHG','Y'], axis=1)
+y_test = data['Y']
 
-# XGBoost model
+print(X_test)
+
 xgb_model = xgb.XGBClassifier()
 
-# Fit the model with the custom loss function
-xgb_model.fit(X_train, y_train, verbose=True)
-
-# Save the model
-xgb_model.save_model("data/models/xgb_brief.sav")
-
-xgb_model.fit(X_train, y_train, verbose=True)
-
-# Make predictions
+# Load model from file 'data/models/xgb_brief.sav'
+xgb_model.load_model('data/models/xgb_brief.sav')
 y_pred = xgb_model.predict(X_test)
 
 # Replace BW -> SW, BL -> SL
 y_pred[y_pred == 4] = 3
 y_pred[y_pred == 0] = 1
 
-# Calculate the accuracy for each outcome
-acc = np.zeros(5)
-for i in range(5):
-    acc[i] = np.mean(y_pred[y_test == i] == y_test[y_test == i])
-    print(f"Accuracy for outcome {i}: {acc[i]}")
+# Print the accuracy for each outcome
+print("Accuracy for each outcome:")
+print("BL: ", np.sum(y_pred[y_test == 0] == 0) / np.sum(y_test == 0))
+print("SL: ", np.sum(y_pred[y_test == 1] == 1) / np.sum(y_test == 1))
+print("D: ", np.sum(y_pred[y_test == 2] == 2) / np.sum(y_test == 2))
+print("SW: ", np.sum(y_pred[y_test == 3] == 3) / np.sum(y_test == 3))
+print("BW: ", np.sum(y_pred[y_test == 4] == 4) / np.sum(y_test == 4))
 
 # Merge the predictions with original data
 data_pred = pd.DataFrame({'Y': y_test, 'Y_pred': y_pred})
-
-# Replace the Y = 4 and Y = 0 with 3 and 1
-data_pred['Y'][data_pred['Y'] == 4] = 3
-data_pred['Y'][data_pred['Y'] == 0] = 1
 
 # Merge with H, D, A
 data_pred = data_pred.merge(data[['H', 'D', 'A']], left_index=True, right_index=True)
@@ -116,7 +98,21 @@ print("Total profit A: ", data_pred['Profit'].sum())
 # ROI
 print("ROI A: ", (data_pred['Profit'].sum() / len(data_pred)) * 100)
 
-# # Plot the profit
-# data_pred = data_pred.reset_index(drop=True)
-# plt.plot(data_pred['Profit'].cumsum())
-# plt.show()
+# Calculate total number of bets
+total_bets = np.sum(y_pred == 3) + np.sum(y_pred == 1) + np.sum(y_pred == 4) + np.sum(y_pred == 0) + np.sum(y_pred == 2)
+
+# Calculate total number of bets for SW
+sw_bets = np.sum(y_pred == 3)
+print("Total number of bets for SW: ", sw_bets)
+
+# Calculate total number of bets for SL
+sl_bets = np.sum(y_pred == 1)
+print("Total number of bets for SL: ", sl_bets)
+
+# Calculate total number of bets for D
+d_bets = np.sum(y_pred == 2)
+print("Total number of bets for D: ", d_bets)
+
+# Calculate total number of bets
+total_bets = sw_bets + sl_bets + d_bets
+print("Total number of bets: ", total_bets)
