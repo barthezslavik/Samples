@@ -69,4 +69,50 @@ for index, row in df.iterrows():
 # Group by Date and Team
 df_points = df_points.groupby(["Team","Date"]).sum().reset_index()
 
-print(df_points.head(50))
+df = df_points
+
+data = df[['Points']].values
+
+# create a function to split the data into input and output sequences
+def split_sequence(sequence, n_steps):
+    X, y = list(), list()
+    for i in range(len(sequence)):
+        # find the end of this pattern
+        end_ix = i + n_steps
+        # check if we are beyond the sequence
+        if end_ix > len(sequence)-1:
+            break
+        # gather input and output parts of the pattern
+        seq_x, seq_y = sequence[i:end_ix], sequence[end_ix]
+        X.append(seq_x)
+        y.append(seq_y)
+    return np.array(X), np.array(y)
+
+# choose number of previous values to use as input
+n_steps = 5
+
+# split the data into input and output sequences
+X, y = split_sequence(data, n_steps)
+
+# reshape the input data
+n_features = 1
+X = X.reshape((X.shape[0], X.shape[1], n_features))
+
+# define the LSTM model
+model = Sequential()
+model.add(LSTM(50, activation='relu', input_shape=(n_steps, n_features)))
+model.add(Dense(1))
+model.compile(optimizer='adam', loss='mse')
+
+# fit the model to the data
+model.fit(X, y, epochs=200, verbose=1)
+
+# make predictions
+x_input = data[-n_steps:]
+x_input = x_input.reshape((1, n_steps, n_features))
+
+print(x_input)
+yhat = model.predict(x_input, verbose=1)
+
+# print the prediction
+print(yhat)
