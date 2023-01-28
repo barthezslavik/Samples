@@ -40,15 +40,6 @@ for index, row in df.iterrows():
     current_tour[row["HomeTeam"]] = current_tour.get(row["HomeTeam"], 0) + 1
     df.at[index, "Tour"] = current_tour[row["HomeTeam"]]
 
-# Replace the team names with numbers
-# teams = df["HomeTeam"].unique()
-# teams.sort()
-# teams_dict = {}
-# for i, team in enumerate(teams):
-#     teams_dict[team] = i
-# df["HomeTeam"] = df["HomeTeam"].apply(lambda x: teams_dict[x])
-# df["AwayTeam"] = df["AwayTeam"].apply(lambda x: teams_dict[x])
-
 # Drop all the columns except FTHG, FTAG, HomePoints, AwayPoints, Tour
 df = df[["HomeTeam", "AwayTeam", "FTHG", "FTAG", "HomePoints", "AwayPoints", "Tour"]]
 
@@ -65,38 +56,37 @@ for tour in tours:
     dfs[tour] = df[df["Tour"] == tour]
     dfs[tour] = dfs[tour].drop(["Tour"], axis=1)
 
-# Define the number of timesteps
-timesteps = 3
-
-# Create the input and output datasets for each tour
+timestep = 1
 for tour in tours:
     # Get the tour dataframe
     df = dfs[tour]
-    
+
     # Create the input dataset
-    X_train = np.zeros((df.shape[0] - timesteps, timesteps, 2))
-    for i in range(timesteps, df.shape[0]):
-        for j in range(timesteps):
-            X_train[i-timesteps][j] = df.iloc[i-j-1, :].values
-    
+    X_train = np.zeros((df.shape[0] - timestep, timestep, 2))
+    for i in range(timestep, df.shape[0]):
+        for j in range(timestep):
+            X_train[i-timestep][j] = df.iloc[i-j-1, :].values
+
     # Create the output dataset
-    y_train = df.iloc[timesteps:, :].values
-    
+    y_train = df.iloc[timestep:, :].values
+
     # Define the LSTM model
     model = Sequential()
     model.add(LSTM(units=64, input_shape=(X_train.shape[1], X_train.shape[2])))
     model.add(Dense(2))
     model.compile(loss='mean_squared_error', optimizer='adam')
-    
+
     # Fit the model to the data
-    model.fit(X_train, y_train, epochs=100, batch_size=32)
+    model.fit(X_train, y_train, epochs=100, batch_size=32, verbose=0)
 
     # Use the model to predict the values for the next tour
+    if tour == tours[-1]:
+        break
     next_tour_df = dfs[tour+1]
-    X_test = np.zeros((next_tour_df.shape[0], timesteps, 2))
-    for i in range(timesteps, next_tour_df.shape[0]):
-        for j in range(timesteps):
-            X_test[i-timesteps][j] = next_tour_df.iloc[i-j-1, :].values
+    X_test = np.zeros((next_tour_df.shape[0], timestep, 2))
+    for i in range(timestep, next_tour_df.shape[0]):
+        for j in range(timestep):
+            X_test[i-timestep][j] = next_tour_df.iloc[i-j-1, :].values
     predictions = model.predict(X_test)
 
     # Accuracy
