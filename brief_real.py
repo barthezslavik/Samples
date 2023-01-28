@@ -18,13 +18,11 @@ outcome_map = {'BL': 0, 'SL': 1, 'D': 2, 'SW': 3, 'BW': 4}
 # Create a new column "outcome_num" to store the mapped outcome
 data = dataset.replace(outcome_map)
 
-print(data)
+print("Length of data: ", len(data))
 
 # Get only data
 X_test = data.drop(['Date','Div', 'HomeTeam','AwayTeam','FTAG','FTHG','Y'], axis=1)
 y_test = data['Y']
-
-print(X_test)
 
 xgb_model = xgb.XGBClassifier()
 
@@ -82,6 +80,8 @@ print("Total profit D: ", data_pred['Profit'].sum())
 # ROI
 print("ROI D: ", (data_pred['Profit'].sum() / len(data_pred)) * 100)
 
+d_pred = data_pred
+
 data_pred = base_pred
 
 # Drop all rows where Y_pred == 1
@@ -116,3 +116,8 @@ print("Total number of bets for D: ", d_bets)
 # Calculate total number of bets
 total_bets = sw_bets + sl_bets + d_bets
 print("Total number of bets: ", total_bets)
+
+# Plot the profit
+d_pred = d_pred.reset_index(drop=True)
+plt.plot(d_pred['Profit'].cumsum())
+plt.show()

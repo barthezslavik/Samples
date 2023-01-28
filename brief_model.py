@@ -12,9 +12,7 @@ data = pd.read_csv("data/good/test.csv")
 print("Length of data: ", len(data))
 
 # Drop all rows where H < 2 or A < 2
-data = data[(data['H'] >= 2) & (data['A'] >= 2)] # -> H 
-# data = data[(data['H'] >= 1.6) & (data['A'] >= 1.6)] # -> H 
-# data = data[(data['H'] >= 2.4) & (data['A'] >= 2.4)] # -> D
+data = data[(data['H'] >= 2) & (data['A'] >= 2)]
 
 # Drop all rows where H, D, A equal NaN
 data = data.dropna(subset=['H', 'D', 'A'])
