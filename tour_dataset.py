@@ -87,14 +87,8 @@ for tour in tours:
     for i in range(timestep, next_tour_df.shape[0]):
         for j in range(timestep):
             X_test[i-timestep][j] = next_tour_df.iloc[i-j-1, :].values
+
+    y_test = next_tour_df.iloc[timestep:, :].values
     predictions = model.predict(X_test)
 
-    # Accuracy
-    accuracy = 0
-    for i in range(predictions.shape[0]):
-        if predictions[i][0] > predictions[i][1]:
-            accuracy += 1
-        elif predictions[i][0] == predictions[i][1]:
-            accuracy += 0.5
-    accuracy /= predictions.shape[0]
-    print("Tour: {}, Accuracy: {}".format(tour+1, accuracy))
+    print(predictions)
