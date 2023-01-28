@@ -9,10 +9,6 @@ df = pd.read_csv("data/tour/E0.csv")
 # Create new columns for the points
 df["HomePoints"] = 0
 df["AwayPoints"] = 0
-# Home team goals
-df["HomeTeamGoals"] = 0
-# Away team goals
-df["AwayTeamGoals"] = 0
 
 # Create a dict to store the accumulated points
 points = {}
@@ -51,7 +47,7 @@ df = df[["HomeTeam", "AwayTeam", "FTHG", "FTAG", "HomePoints", "AwayPoints", "To
 df.to_csv("data/tour/E0_1.csv", index=False)
 
 # Drop the unnecessary columns
-df = df.drop(["FTHG", "FTAG"], axis=1)
+df = df.drop(["HomeTeam", "AwayTeam", "FTHG", "FTAG"], axis=1)
 
 # Create a new dataframe for each tour
 tours = df["Tour"].unique()
@@ -60,35 +56,39 @@ for tour in tours:
     dfs[tour] = df[df["Tour"] == tour]
     dfs[tour] = dfs[tour].drop(["Tour"], axis=1)
 
-print(df.head())
+timestep = 1
+for tour in tours:
+    # Get the tour dataframe
+    df = dfs[tour]
 
-# Create a copy of the original dataframe
-df_standings = df.copy()
+    # Create the input dataset
+    X_train = np.zeros((df.shape[0] - timestep, timestep, 2))
+    for i in range(timestep, df.shape[0]):
+        for j in range(timestep):
+            X_train[i-timestep][j] = df.iloc[i-j-1, :].values
 
-# Group the data by tour
-grouped = df_standings.groupby('Tour')
+    # Create the output dataset
+    y_train = df.iloc[timestep:, :].values
 
-# Calculate total points for each team
-df_standings['TotalPoints'] = df_standings['HomePoints'] + df_standings['AwayPoints']
+    # Define the LSTM model
+    model = Sequential()
+    model.add(LSTM(units=64, input_shape=(X_train.shape[1], X_train.shape[2])))
+    model.add(Dense(2))
+    model.compile(loss='mean_squared_error', optimizer='adam')
 
-df_standings['Standing'] = None
+    # Fit the model to the data
+    model.fit(X_train, y_train, epochs=100, batch_size=32, verbose=0)
 
-# Create a new column for team standing
-for name, group in grouped:
-    group = group.sort_values(by=['TotalPoints'], ascending=False)
-    group['Standing'] = range(1, len(group) + 1)
-    df_standings.loc[group.index] = group
+    # Use the model to predict the values for the next tour
+    if tour == tours[-1]:
+        break
+    next_tour_df = dfs[tour+1]
+    X_test = np.zeros((next_tour_df.shape[0], timestep, 2))
+    for i in range(timestep, next_tour_df.shape[0]):
+        for j in range(timestep):
+            X_test[i-timestep][j] = next_tour_df.iloc[i-j-1, :].values
 
-# pivot the data
-df_standings_pivot = df_standings.pivot_table(values=['TotalPoints','Standing'], index=['HomeTeam','Tour'],aggfunc='first')
-df_standings_pivot.reset_index(inplace=True)
-df_standings_pivot.rename(columns={'HomeTeam':'TeamName'},inplace=True)
+    y_test = next_tour_df.iloc[timestep:, :].values
+    predictions = model.predict(X_test)
 
-df_standings_pivot_away = df_standings.pivot_table(values=['TotalPoints','Standing'], index=['AwayTeam','Tour'],aggfunc='first')
-df_standings_pivot_away.reset_index(inplace=True)
-df_standings_pivot_away.rename(columns={'AwayTeam':'TeamName'},inplace=True)
-
-# concatenate the result from home and away
-df_standings_all = pd.concat([df_standings_pivot,df_standings_pivot_away],ignore_index=True)
-
-print(df_standings_all.head(50))
+    print(predictions)
