@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Load data
-df = pd.read_csv('data/metrics/xgb_brief.csv')
+df = pd.read_csv('data/metrics/xgb_brief_done.csv')
 
 # H,D,ROI H,ROI D,ROI A,Bets H,Bets D,Bets A,Profit H,Profit D,Profit A
 
@@ -49,14 +49,24 @@ df = pd.read_csv('data/metrics/xgb_brief.csv')
 # ax.legend()
 
 # Correlation between ROI and A, D, H
-fig, ax = plt.subplots() # A -> 1.9
-ax.scatter(df['Profit H'], df['A'], label='Profit H')
-ax.scatter(df['Profit A'], df['A'], label='Profit A')
-ax.set_xlabel('Profit')
-ax.set_ylabel('Coefficient')
-ax.legend()
+# fig, ax = plt.subplots() # A -> 1.9
+# ax.scatter(df['Profit H'], df['A'], label='Profit H')
+# ax.scatter(df['Profit A'], df['A'], label='Profit A')
+# ax.set_xlabel('Profit')
+# ax.set_ylabel('Coefficient')
+# ax.legend()
 
 # Save plot
-plt.savefig('data/plots/brief_profit_coefficient.png')
+# plt.savefig('data/plots/brief_profit_coefficient.png')
 
-# plt.show()
+# Plot 3D graph of ROI and coefficients
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+ax.scatter(df['ROI H'], df['H'], df['Profit H'], label='ROI H')
+ax.scatter(df['ROI A'], df['A'], df['Profit A'], label='ROI A')
+ax.set_xlabel('ROI')
+ax.set_ylabel('Coefficient')
+ax.set_zlabel('Profit')
+ax.legend()
+
+plt.show()

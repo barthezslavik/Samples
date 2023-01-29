@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 pd.options.mode.chained_assignment = None
 
 # Load the data
-data = pd.read_csv("data/good/train.csv")
+data = pd.read_csv("data/good/short.csv")
 
 print("Length of data: ", len(data))
 
@@ -16,6 +16,8 @@ print("Length of data: ", len(data))
 # data = data[(data['H'] >= 1.6) & (data['A'] >= 2)] # -> D, A
 # data = data[(data['H'] >= 1.5) & (data['A'] >= 2)] # -> D, A
 # data = data[(data['H'] >= 1.7) & (data['A'] >= 2.2)] # -> D, A
+
+# data = data[(data['H'] >= 1.7) & (data['A'] >= 1.9)] # -> D, A
 data = data[(data['H'] >= 1.7) & (data['A'] >= 1.9)] # -> D, A
 
 # Drop all rows where H, D, A equal NaN
@@ -45,8 +47,6 @@ xgb_model.fit(X_train, y_train, verbose=True)
 # Save the model
 # xgb_model.save_model("data/models/xgb_brief.sav")
 pickle.dump(xgb_model, open("data/models/xgb_brief.sav", 'wb'))
-
-xgb_model.fit(X_train, y_train, verbose=True)
 
 # Make predictions
 y_pred = xgb_model.predict(X_test)

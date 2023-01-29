@@ -21,16 +21,19 @@ for h in np.arange(1,10,0.1):
             print(f"Running for H >= {h} and A >= {a}")
 
             # Load the data
-            data = pd.read_csv("data/good/short2.csv")
+            train_data = pd.read_csv("data/good/short.csv")
+            test_data = pd.read_csv("data/good/short_test.csv")
 
-            print("Length of data: ", len(data))
+            data = train_data
+
+            print("Length of train data: ", len(data))
 
             data = data[(data['H'] >= h) & (data['A'] >= a)] # -> D, A
 
             # Drop all rows where H, D, A equal NaN
             data = data.dropna(subset=['H', 'D', 'A'])
 
-            print("Length of data: ", len(data))
+            print("Length of train data: ", len(data))
 
             # Create a dictionary to map outcome to integer values
             outcome_map = {'BL': 0, 'SL': 1, 'D': 2, 'SW': 3, 'BW': 4}
@@ -43,22 +46,41 @@ for h in np.arange(1,10,0.1):
             y = data['Y']
 
             # Split the data into training and testing sets
-            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+            # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
             # XGBoost model
             xgb_model = xgb.XGBClassifier()
 
             # Fit the model with the custom loss function
-            xgb_model.fit(X_train, y_train, verbose=True)
+            xgb_model.fit(X, y, verbose=True)
 
             # Save the model
             # xgb_model.save_model("data/models/xgb_brief.sav")
-            pickle.dump(xgb_model, open("data/models/xgb_brief.sav", 'wb'))
+            # pickle.dump(xgb_model, open("data/models/xgb_brief.sav", 'wb'))
 
-            xgb_model.fit(X_train, y_train, verbose=True)
+            data = test_data
+
+            print("Length of train data: ", len(data))
+
+            data = data[(data['H'] >= h) & (data['A'] >= a)] # -> D, A
+
+            # Drop all rows where H, D, A equal NaN
+            data = data.dropna(subset=['H', 'D', 'A'])
+
+            print("Length of train data: ", len(data))
+
+            # Create a dictionary to map outcome to integer values
+            outcome_map = {'BL': 0, 'SL': 1, 'D': 2, 'SW': 3, 'BW': 4}
+
+            # Create a new column "outcome_num" to store the mapped outcome
+            data = data.replace(outcome_map)
+
+            # Define the features and target
+            X = data[['H', 'D', 'A', 'x1', 'x2', 'x3', 'x4', 'x5', 'x6', 'x7', 'x8', 'x9', 'x10', 'x11', 'x12']]
+            y = data['Y']
 
             # Make predictions
-            y_pred = xgb_model.predict(X_test)
+            y_pred = xgb_model.predict(X)
 
             # Replace BW -> SW, BL -> SL
             y_pred[y_pred == 4] = 3
@@ -67,11 +89,11 @@ for h in np.arange(1,10,0.1):
             # Calculate the accuracy for each outcome
             acc = np.zeros(5)
             for i in range(5):
-                acc[i] = np.mean(y_pred[y_test == i] == y_test[y_test == i])
+                acc[i] = np.mean(y_pred[y == i] == y[y == i])
                 print(f"Accuracy for outcome {i}: {acc[i]}")
 
             # Merge the predictions with original data
-            data_pred = pd.DataFrame({'Y': y_test, 'Y_pred': y_pred})
+            data_pred = pd.DataFrame({'Y': y, 'Y_pred': y_pred})
 
             # Replace the Y = 4 and Y = 0 with 3 and 1
             data_pred['Y'][data_pred['Y'] == 4] = 3
@@ -148,8 +170,3 @@ for h in np.arange(1,10,0.1):
             metrics.to_csv("data/metrics/xgb_brief.csv", mode='a', index=False, header=False)
         except:
             print("Error")
-
-        # # Plot the profit
-        # data_pred = data_pred.reset_index(drop=True)
-        # plt.plot(data_pred['Profit'].cumsum())
-        # plt.show()
