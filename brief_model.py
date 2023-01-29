@@ -8,12 +8,14 @@ import matplotlib.pyplot as plt
 pd.options.mode.chained_assignment = None
 
 # Load the data
-data = pd.read_csv("data/good/test.csv")
+data = pd.read_csv("data/good/train.csv")
 
 print("Length of data: ", len(data))
 
 # Drop all rows where H < 2 or A < 2
-data = data[(data['H'] >= 2) & (data['A'] >= 2)]
+# data = data[(data['H'] >= 1.6) & (data['A'] >= 2)] # -> D, A
+# data = data[(data['H'] >= 1.5) & (data['A'] >= 2)] # -> D, A
+data = data[(data['H'] >= 1.5) & (data['A'] >= 2.2)] # -> D, A
 
 # Drop all rows where H, D, A equal NaN
 data = data.dropna(subset=['H', 'D', 'A'])

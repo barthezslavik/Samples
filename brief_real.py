@@ -7,13 +7,13 @@ import matplotlib.pyplot as plt
 pd.options.mode.chained_assignment = None
 
 # Read in dataset
-dataset = pd.read_csv(f"data/good/train.csv", header=0)
+dataset = pd.read_csv(f"data/good/test.csv", header=0)
 
 # Drop all rows where H, D, A equal NaN
 dataset = dataset.dropna(subset=['H', 'D', 'A'])
 
 # Create a dictionary to map outcome to integer values
-outcome_map = {'BL': 0, 'SL': 1, 'D': 2, 'SW': 3, 'BW': 4}
+outcome_map = {'BL': 1, 'SL': 1, 'D': 2, 'SW': 3, 'BW': 3}
 
 # Create a new column "outcome_num" to store the mapped outcome
 data = dataset.replace(outcome_map)
@@ -21,7 +21,7 @@ data = dataset.replace(outcome_map)
 print("Length of data: ", len(data))
 
 # Get only data
-X_test = data.drop(['Date','Div', 'HomeTeam','AwayTeam','FTAG','FTHG','Y'], axis=1)
+X_test = data[['H','D','A','x1','x2','x3','x4','x5','x6','x7','x8','x9','x10','x11','x12']]
 y_test = data['Y']
 
 print(X_test.head())
@@ -51,21 +51,31 @@ data_pred = pd.DataFrame({'Y': y_test, 'Y_pred': y_pred})
 # Merge with H, D, A
 data_pred = data_pred.merge(data[['H', 'D', 'A']], left_index=True, right_index=True)
 
+# Merge with HomeTeam, AwayTeam
+data_pred = data_pred.merge(data[['HomeTeam', 'AwayTeam']], left_index=True, right_index=True)
+
 base_pred = data_pred
 
 # Drop all rows where Y_pred == 3
-data_pred = data_pred[data_pred['Y_pred'] == 3]
+# data_pred = data_pred[data_pred['Y_pred'] == 3]
 
 print("Total bets on H: ", len(data_pred))
 
+print("Accuracy for H: ", np.sum(data_pred['Y_pred'] == data_pred['Y']) / len(data_pred))
+
 # Add a column for the profit, set = (H - 1) if Y = 3 and -1 otherwise
 data_pred['Profit'] = np.where(data_pred['Y'] == 3, data_pred['H'] - 1, -1)
+
+print("Win bets on H: ", np.sum(data_pred['Profit'] > 0))
 
 # Calculate the total profit
 print("Total profit H: ", data_pred['Profit'].sum())
 
 # ROI
 print("ROI H: ", (data_pred['Profit'].sum() / len(data_pred)) * 100)
+
+# Save predictions to file
+data_pred.to_csv('data/predictions/h_pred.csv', index=False)
 
 data_pred = base_pred
 
@@ -84,6 +94,9 @@ print("Total profit D: ", data_pred['Profit'].sum())
 print("ROI D: ", (data_pred['Profit'].sum() / len(data_pred)) * 100)
 
 d_pred = data_pred
+
+# Save predictions to file
+d_pred.to_csv('data/predictions/d_pred.csv', index=False)
 
 data_pred = base_pred
 
