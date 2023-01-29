@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 pd.options.mode.chained_assignment = None
 
 # Create metrcis data
-metrics = pd.DataFrame(columns=['H', 'D', 'ROI H', 'ROI D', 'ROI A', 'Bets H', 'Bets D', 'Bets A', 'Profit H', 'Profit D', 'Profit A'])
+metrics = pd.DataFrame(columns=['H', 'A', 'ROI H', 'ROI D', 'ROI A', 'Bets H', 'Bets D', 'Bets A', 'Profit H', 'Profit D', 'Profit A'])
 
 # Save to file
 metrics.to_csv("data/metrics/xgb_brief.csv", index=False)
@@ -139,7 +139,7 @@ for h in np.arange(1,10,0.1):
 
             # Create row for metrics
             metrics = pd.DataFrame({
-                'H': h, 'D': a, 'ROI H': roi_h, 'ROI D': roi_d, 'ROI A': roi_a,
+                'H': h, 'A': a, 'ROI H': roi_h, 'ROI D': roi_d, 'ROI A': roi_a,
                 'Bets H': bet_h, 'Bets D': bet_d, 'Bets A': bet_a,
                 'Profit H': profit_h, 'Profit D': profit_d, 'Profit A': profit_a
             }, index=[0])

@@ -15,7 +15,8 @@ print("Length of data: ", len(data))
 # Drop all rows where H < 2 or A < 2
 # data = data[(data['H'] >= 1.6) & (data['A'] >= 2)] # -> D, A
 # data = data[(data['H'] >= 1.5) & (data['A'] >= 2)] # -> D, A
-data = data[(data['H'] >= 1.5) & (data['A'] >= 2.2)] # -> D, A
+# data = data[(data['H'] >= 1.7) & (data['A'] >= 2.2)] # -> D, A
+data = data[(data['H'] >= 1.7) & (data['A'] >= 1.9)] # -> D, A
 
 # Drop all rows where H, D, A equal NaN
 data = data.dropna(subset=['H', 'D', 'A'])
