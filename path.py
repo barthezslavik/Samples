@@ -12,6 +12,33 @@ def get_all_matches(dataset, team):
 def teams(dataset):
     return dataset['HomeTeam'].unique()
 
+def get_points(dataset, team, date):
+    matches = get_all_matches(dataset, team)
+    points = 0
+    for i in range(len(matches)):
+        if matches.iloc[i]['Date'] < date:
+            if matches.iloc[i]['HomeTeam'] == team:
+                if matches.iloc[i]['FTHG'] > matches.iloc[i]['FTAG']:
+                    points += 3
+                elif matches.iloc[i]['FTHG'] == matches.iloc[i]['FTAG']:
+                    points += 1
+            elif matches.iloc[i]['AwayTeam'] == team:
+                if matches.iloc[i]['FTHG'] < matches.iloc[i]['FTAG']:
+                    points += 3
+                elif matches.iloc[i]['FTHG'] == matches.iloc[i]['FTAG']:
+                    points += 1
+    return points
+
+def get_position(dataset, team, date):
+    points = get_points(dataset, team, date)
+    matches = get_all_matches(dataset, team)
+    position = 0
+    for i in range(len(matches)):
+        if matches.iloc[i]['Date'] < date:
+            if get_points(dataset, team, matches.iloc[i]['Date']) > points:
+                position += 1
+    return position
+
 # Walk in the directory and get all the files
 for root, dirs, files in os.walk("data/discovery"):
     for file in files:
@@ -35,10 +62,10 @@ for root, dirs, files in os.walk("data/discovery"):
                             date = matches.iloc[i]['Date']
                             # Get the position of the team at that date
                             tour = len(matches[matches['Date'] < date])
-                            # Position of the team
-                            position = 0
                             # Points of the team
-                            points = 0
+                            points = get_points(matches, team, date)
+                            # Position of the team
+                            position = get_position(matches, points, date)
                             # Create a new row
                             new_row = pd.DataFrame([[date, team, tour, points, position]], columns=['Date', 'Team', 'Tour', 'Points', 'Position'])
                             # Append the row to the dataset
