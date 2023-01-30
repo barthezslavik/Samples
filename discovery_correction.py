@@ -3,8 +3,6 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-# data = []
-
 # # Create new dataset
 # d = pd.DataFrame(columns=['Date', 'Div', 'HomeTeam', 'AwayTeam', 'FTHG', 'FTAG', 'H', 'D', 'A'])
 
@@ -19,7 +17,7 @@ import matplotlib.pyplot as plt
 #             first_row = df.iloc[1]
 #             date = first_row['Date'].split('/')[2]
 #             # if date == '16' or date == '2016':
-#             if date == '14' or date == '2014':
+#             if date == '12' or date == '13' or date == '14' or date == '2012' or date == '2013' or date == '2014':
 #                 if "BWH" in df.columns:
 #                     df["H"] = df["BWH"]
 #                     df["D"] = df["BWD"]
@@ -51,6 +49,8 @@ import matplotlib.pyplot as plt
 # d.to_csv("data/good/discovery14.csv", index=False)
 d = pd.read_csv("data/good/discovery14.csv")
 
+d['Date'] = pd.to_datetime(d['Date'], format='%d/%m/%y')
+
 def name(diff):
     if diff <= -3:
         return "BL"
@@ -76,10 +76,9 @@ def history(dataset, team, date):
     return dataset[-5:]
 
 def hh(dataset, team1, team2, date):
-    # Filter the lines for the team1
-    dataset = dataset[dataset["HomeTeam"] == team1]
-    # Filter the lines for the team2
-    dataset = dataset[dataset["AwayTeam"] == team2]
+    # Filter the lines for the HomeTeam vs AwayTeam
+    dataset = dataset[((dataset["HomeTeam"] == team1) & (dataset["AwayTeam"] == team2)) |
+     ((dataset["HomeTeam"] == team2) & (dataset["AwayTeam"] == team1))]
     # Filter the lines for the date
     dataset = dataset[dataset["Date"] < date]
     # Remove all expect the result
@@ -89,14 +88,28 @@ def hh(dataset, team1, team2, date):
     # Return last 2 results
     return dataset[-2:]
 
+def scored(dataset, team, date):
+    print(team)
+    # Filter the lines for the HomeTeam
+    dataset = dataset[(dataset["HomeTeam"] == team) | (dataset["AwayTeam"] == team)]
+
+    # Filter the lines for the date
+    dataset = dataset[dataset["Date"] < date]
+    if len(dataset) == 0:
+        return 0
+
+    # Set the goals to FTHG if the team is the HomeTeam
+    dataset.loc[dataset["HomeTeam"] == team, "goals"] = dataset["FTHG"]
+    # Set the goals to FTAG if the team is the AwayTeam
+    dataset.loc[dataset["AwayTeam"] == team, "goals"] = dataset["FTAG"]
+    # Sum the goals from last 5 matches
+    return dataset["goals"][-5:].sum()
+
 data = []
 # For each macth create x1, x2, x3, x4, x5: last 5 matches of the home team
 # x6, x7, x8, x9, x10: last 5 matches of the away team
 # x11, x12, last 2 matches head to head of the home team and the away team
 for index, row in d.iterrows():
-    # if index < 151 or index >= 152:
-        # continue
-    # print("Processing match: ", row)
     # Get the date
     date = row['Date']
     div = row['Div']
@@ -107,25 +120,32 @@ for index, row in d.iterrows():
     # Get the result
     result = row['FTHG'] - row['FTAG']
     # Apply the name function
+    # print(row)
     result = name(result)
     # Get the odds
     odds = [row['H'], row['D'], row['A']]
     
     # Get the last 5 matches of the home team
     home_team_last_5 = history(d, home_team, date)
-    # print(home_team_last_5)
     # Get the last 5 matches of the away team
     away_team_last_5 = history(d, away_team, date)
     # Get the last 2 matches head to head of the home team and the away team
     head_to_head_last_2 = hh(d, home_team, away_team, date)
     
     # Create the new row
-    new_row = [date, div, home_team, away_team, result, odds[0], odds[1], odds[2]]
+    new_row = [date, div, home_team, away_team, odds[0], odds[1], odds[2], result]
     new_row.extend(home_team_last_5)
     new_row.extend(away_team_last_5)
     new_row.extend(head_to_head_last_2)
-    # print(len(new_row))
+    new_row.append(scored(d, home_team, date))
+    new_row.append(scored(d, away_team, date))
     print(new_row)
     
-    # Append the new row to the dataset
-    data.append(new_row)
+    if(len(new_row) == 22):
+        # Append the new row to the dataset
+        data.append(new_row)
+
+# Create the new dataset
+dataset = pd.DataFrame(data, columns=['Date', 'Div', 'HomeTeam', 'AwayTeam', 'H', 'D', 'A', 'Y', 'x1', 'x2', 'x3', 'x4', 'x5', 'x6', 'x7', 'x8', 'x9', 'x10', 'x11', 'x12','HS','AS'])
+# Save the new dataset
+dataset.to_csv("data/good/test.csv", index=False)

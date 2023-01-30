@@ -4,21 +4,26 @@ import xgboost as xgb
 import pickle
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
+from sklearn.neural_network import MLPRegressor
 
 pd.options.mode.chained_assignment = None
 
 # Load the data
-data = pd.read_csv("data/good/short.csv")
+data = pd.read_csv("data/good/test.csv")
 
 print("Length of data: ", len(data))
 
 # Drop all rows where H < 2 or A < 2
-# data = data[(data['H'] >= 1.6) & (data['A'] >= 2)] # -> D, A
-# data = data[(data['H'] >= 1.5) & (data['A'] >= 2)] # -> D, A
-# data = data[(data['H'] >= 1.7) & (data['A'] >= 2.2)] # -> D, A
+# data = data[(data['H'] >= 2) & (data['A'] >= 2)]
 
-# data = data[(data['H'] >= 1.7) & (data['A'] >= 1.9)] # -> D, A
-data = data[(data['H'] >= 1.7) & (data['A'] >= 1.9)] # -> D, A
+# H 1.3 A 3.4 -> Profit H
+# H 2.2 A 2.6 -> Profit D
+# H 1.1 A 2.0 -> Profit A
+
+# H 2.2 A 1.6 | 4.2  1.3 -> Profit H
+data = data[(data['H'] >= 2.3) & (data['A'] >= 1.3)]
+# H 1.3 A 1.0 | 4.7  1.5 -> Profit D
+# H 1.2 A 3.4 | 1.2  3.4 -> Profit A
 
 # Drop all rows where H, D, A equal NaN
 data = data.dropna(subset=['H', 'D', 'A'])
@@ -32,7 +37,7 @@ outcome_map = {'BL': 0, 'SL': 1, 'D': 2, 'SW': 3, 'BW': 4}
 data = data.replace(outcome_map)
 
 # Define the features and target
-X = data[['H', 'D', 'A', 'x1', 'x2', 'x3', 'x4', 'x5', 'x6', 'x7', 'x8', 'x9', 'x10', 'x11', 'x12']]
+X = data[['H', 'D', 'A', 'x1', 'x2', 'x3', 'x4', 'x5', 'x6', 'x7', 'x8', 'x9', 'x10', 'x11', 'x12','HS']]
 y = data['Y']
 
 # Split the data into training and testing sets
@@ -45,7 +50,7 @@ xgb_model = xgb.XGBClassifier()
 xgb_model.fit(X_train, y_train, verbose=True)
 
 # Save the model
-# xgb_model.save_model("data/models/xgb_brief.sav")
+xgb_model.save_model("data/models/xgb_brief.sav")
 pickle.dump(xgb_model, open("data/models/xgb_brief.sav", 'wb'))
 
 # Make predictions

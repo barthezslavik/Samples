@@ -6,67 +6,11 @@ df = pd.read_csv('data/metrics/xgb_brief_done.csv')
 
 # H,D,ROI H,ROI D,ROI A,Bets H,Bets D,Bets A,Profit H,Profit D,Profit A
 
-# # Plot
-# fig, ax = plt.subplots()
-# ax.plot(df['ROI H'], label='ROI H')
-# ax.plot(df['ROI D'], label='ROI D')
-# ax.plot(df['ROI A'], label='ROI A')
-# ax.set_xlabel('Bets')
-# ax.set_ylabel('ROI')
-# ax.legend()
-
-# # Save plot
-# plt.savefig('data/plots/brief_roi.png')
-
-# fig, ax = plt.subplots()
-# ax.plot(df['Profit H'], label='Profit H')
-# ax.plot(df['Profit D'], label='Profit D')
-# ax.plot(df['Profit A'], label='Profit A')
-# ax.set_xlabel('Bets')
-# ax.set_ylabel('Profit')
-# ax.legend()
-
-# # Save plot
-# plt.savefig('data/plots/brief_profit.png')
-
-# fig, ax = plt.subplots()
-# ax.plot(df['Bets H'], label='Bets H')
-# ax.plot(df['Bets D'], label='Bets D')
-# ax.plot(df['Bets A'], label='Bets A')
-# ax.set_xlabel('Bets')
-# ax.set_ylabel('Bets')
-# ax.legend()
-
-# # Save plot
-# plt.savefig('data/plots/brief_bets.png')
-
-# # Correlation between ROI and A, D, H
-# fig, ax = plt.subplots() # H -> 1.7
-# ax.scatter(df['Profit H'], df['H'], label='Profit H')
-# ax.scatter(df['Profit A'], df['H'], label='Profit A')
-# ax.set_xlabel('Profit')
-# ax.set_ylabel('Coefficient')
-# ax.legend()
-
-# Correlation between ROI and A, D, H
-# fig, ax = plt.subplots() # A -> 1.9
-# ax.scatter(df['Profit H'], df['A'], label='Profit H')
-# ax.scatter(df['Profit A'], df['A'], label='Profit A')
-# ax.set_xlabel('Profit')
-# ax.set_ylabel('Coefficient')
-# ax.legend()
-
-# Save plot
-# plt.savefig('data/plots/brief_profit_coefficient.png')
-
-# Plot 3D graph of ROI and coefficients
+# Plot 3D: ROI H, ROI D, ROI A vs H, A
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
-ax.scatter(df['ROI H'], df['H'], df['Profit H'], label='ROI H')
-ax.scatter(df['ROI A'], df['A'], df['Profit A'], label='ROI A')
-ax.set_xlabel('ROI')
-ax.set_ylabel('Coefficient')
-ax.set_zlabel('Profit')
-ax.legend()
-
+ax.scatter(df['ROI H'], df['ROI D'], df['ROI A'], c='r', marker='o')
+ax.set_xlabel('ROI H')
+ax.set_ylabel('ROI D')
+ax.set_zlabel('ROI A')
 plt.show()
