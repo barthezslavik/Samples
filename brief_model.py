@@ -37,7 +37,7 @@ outcome_map = {'BL': 0, 'SL': 1, 'D': 2, 'SW': 3, 'BW': 4}
 data = data.replace(outcome_map)
 
 # Define the features and target
-X = data[['H', 'D', 'A', 'x1', 'x2', 'x3', 'x4', 'x5', 'x6', 'x7', 'x8', 'x9', 'x10', 'x11', 'x12','HS']]
+X = data[['H', 'D', 'A', 'x3', 'x4', 'x5', 'x8', 'x9', 'x10', 'x11', 'x12']]
 y = data['Y']
 
 # Split the data into training and testing sets

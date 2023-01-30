@@ -39,7 +39,7 @@ for h in np.arange(1,10,0.1):
             data = data.replace(outcome_map)
 
             # Define the features and target
-            X = data[['x1', 'x2', 'x3', 'x4', 'x5', 'x6', 'x7', 'x8', 'x9', 'x10', 'x11', 'x12']]
+            X = data[['x3', 'x4', 'x5', 'x8', 'x9', 'x10', 'x11', 'x12']]
             y = data['Y']
 
             # Split the data into training and testing sets
