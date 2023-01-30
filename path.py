@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Create new dataset
-d = pd.DataFrame(columns=['Date', 'Team', 'Tour', 'Position'])
+d = pd.DataFrame(columns=['Date', 'Team', 'Tour', 'Points' ,'Position'])
 
 def get_all_matches(dataset, team):
     return dataset[(dataset['HomeTeam'] == team) | (dataset['AwayTeam'] == team)]
@@ -37,8 +37,10 @@ for root, dirs, files in os.walk("data/discovery"):
                             tour = len(matches[matches['Date'] < date])
                             # Position of the team
                             position = 0
+                            # Points of the team
+                            points = 0
                             # Create a new row
-                            new_row = pd.DataFrame([[date, team, tour, position]], columns=['Date', 'Team', 'Tour', 'Position'])
+                            new_row = pd.DataFrame([[date, team, tour, points, position]], columns=['Date', 'Team', 'Tour', 'Points', 'Position'])
                             # Append the row to the dataset
                             d = d.append(new_row, ignore_index=True)
 
