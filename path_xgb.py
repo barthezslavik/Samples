@@ -25,6 +25,8 @@ xgb_model = xgb.XGBClassifier()
 xgb_model.fit(X_train, y_train)
 y_pred = xgb_model.predict(X_test)
 
+print(y_pred)
+
 # Calculate accuracy
 accuracy = accuracy_score(y_test, y_pred)
 print(accuracy)
@@ -38,3 +40,8 @@ print(accuracy)
 # # Calculate accuracy
 # accuracy = accuracy_score(y_test, y_pred)
 # print(accuracy)
+
+# Merge y_pred and y_test
+df = pd.DataFrame({'y_test': y_test, 'y_pred': y_pred})
+
+print(df)
