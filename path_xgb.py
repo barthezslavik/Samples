@@ -52,9 +52,23 @@ y_pred3 = lr_model.predict(X_test)
 
 print("Logistic Regression model")
 
+# Save predictions to a csv file with the actual outcome
+df = pd.DataFrame({'y_test': y_test, 'y_pred': y_pred3})
+df.to_csv('data/predictions/next_tour.csv', index=False)
+
 # Calculate accuracy for each of outcome
 for i in range(3):
     accuracy = accuracy_score(y_test[y_test == i], y_pred3[y_test == i])
+    print("Accuracy for outcome {}: {}".format(i, accuracy))
+
+# Merge outcome 0 from Decision Tree and outcome 2 from XGBoost and outcome 1 from Logistic Regression
+y_pred = np.where(y_pred2 == 0, y_pred2, np.where(y_pred1 == 2, y_pred1, y_pred3))
+
+print("Merged model")
+
+# Calculate accuracy for each of outcome
+for i in range(3):
+    accuracy = accuracy_score(y_test[y_test == i], y_pred[y_test == i])
     print("Accuracy for outcome {}: {}".format(i, accuracy))
 
 # Merge y_pred and y_test
