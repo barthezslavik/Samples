@@ -14,8 +14,6 @@ data = data.astype(int)
 # Drop the columns that are not needed
 X = data.drop(['Next Position','Changed'], axis=1)
 
-print(X.head(50))
-
 # Assign the input variables to X and the output variable to y
 y = data['Changed']
 
@@ -31,12 +29,12 @@ y_pred = xgb_model.predict(X_test)
 accuracy = accuracy_score(y_test, y_pred)
 print(accuracy)
 
-# Neural Network model
-nn_model = MLPRegressor(hidden_layer_sizes=(20, 20))
-nn_model.fit(X_train, y_train)  
-y_pred = nn_model.predict(X_test)
-y_pred = np.round(y_pred).astype(int)
+# # Neural Network model
+# nn_model = MLPRegressor(hidden_layer_sizes=(20, 20))
+# nn_model.fit(X_train, y_train)  
+# y_pred = nn_model.predict(X_test)
+# y_pred = np.round(y_pred).astype(int)
 
-# Calculate accuracy
-accuracy = accuracy_score(y_test, y_pred)
-print(accuracy)
+# # Calculate accuracy
+# accuracy = accuracy_score(y_test, y_pred)
+# print(accuracy)

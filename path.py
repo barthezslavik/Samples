@@ -3,9 +3,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Create new dataset
-global_dataset = pd.DataFrame(columns=['Date', 'Team', 'Tour', 'Points'])
-d = pd.DataFrame(columns=['Date', 'Team', 'Tour', 'Points'])
+global_data = []
 
 def get_all_matches(dataset, team):
     return dataset[(dataset['HomeTeam'] == team) | (dataset['AwayTeam'] == team)]
@@ -54,7 +52,9 @@ for root, dirs, files in os.walk("data/discovery"):
             date = first_row['Date'].split('/')[2]
             if date == '12' or date == '2012':
                 print("Processing file: ", file, " - ", first_row['Div'])
-                if first_row['Div'] == 'E0':
+                if first_row['Div'] == 'E0' or first_row['Div'] == 'E1':
+                    # Create new dataset
+                    d = pd.DataFrame(columns=['Date', 'Team', 'Tour', 'Points'])
                     df['Date'] = pd.to_datetime(df['Date'], format='%d/%m/%y')
                     # For each team
                     for team in teams(df):
@@ -73,32 +73,28 @@ for root, dirs, files in os.walk("data/discovery"):
                             # Append the row to the dataset
                             d = d.append(new_row, ignore_index=True)
 
-# Set position
-d['Position'] = d.apply(lambda row: get_position(d, row['Team'], row['Tour']), axis=1)
+                    # Set position
+                    d['Position'] = d.apply(lambda row: get_position(d, row['Team'], row['Tour']), axis=1)
 
-# print(d.tail(50))
+                    # Remove all except the tour, poins and position
+                    d = d.drop(['Date', 'Team'], axis=1)
 
-# # Plot the for each team the position over all the tours
-# for team in teams2(d):
-#     data = d[d['Team'] == team]
-#     plt.plot(data['Tour'], data['Position'], label=team)
-# plt.legend()
-# plt.show()
+                    # Add column for the next position (the position of the next tour)
+                    d['Next Position'] = d.groupby(['Tour'])['Position'].shift(-1)
 
-# Remove all except the tour, poins and position
-d = d.drop(['Date', 'Team'], axis=1)
+                    # Add column Changed = 1 if the Next Position > Position; 0 otherwise
+                    d['Changed'] = d.apply(lambda row: 1 if row['Next Position'] > row['Position'] else 0, axis=1)
 
-# Add column for the next position (the position of the next tour)
-d['Next Position'] = d.groupby(['Tour'])['Position'].shift(-1)
+                    # Drop first 5 tours
+                    d = d[d['Tour'] > 6]
 
-# Add column Changed = 1 if the Next Position > Position; 0 otherwise
-d['Changed'] = d.apply(lambda row: 1 if row['Next Position'] > row['Position'] else 0, axis=1)
+                    # Drop all where the next position is NaN
+                    d = d.dropna()
 
-# Drop first 5 tours
-d = d[d['Tour'] > 6]
+                    global_data.append(d)
 
-# Drop all where the next position is NaN
-d = d.dropna()
+# Concatenate all the datasets
+global_data = pd.concat(global_data)
 
 # Save the dataset
-d.to_csv('data/good/position.csv', index=False)
+global_data.to_csv('data/good/position.csv', index=False)
