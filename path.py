@@ -41,10 +41,16 @@ def get_position(dataset, team, tour):
     return index
 
 def next_position(dataset, team, tour):
-    print("Team: ", team)
     data = dataset[(dataset['Tour'] == tour + 1) & (dataset['Team'] == team)]
     if len(data) > 0:
         return data['Position'].values[0]
+    else:
+        return -1
+
+def next_points(dataset, team, tour):
+    data = dataset[(dataset['Tour'] == tour + 1) & (dataset['Team'] == team)]
+    if len(data) > 0:
+        return data['Points'].values[0]
     else:
         return -1
 
@@ -58,9 +64,9 @@ for root, dirs, files in os.walk("data/discovery"):
             # Get first row of the dataframe
             first_row = df.iloc[1]
             date = first_row['Date'].split('/')[2]
-            if date == '12' or date == '2012':
+            if date == '13' or date == '2013':
                 print("Processing file: ", file, " - ", first_row['Div'])
-                if first_row['Div'] == 'E0' or first_row['Div'] == 'E1':
+                if first_row['Div'] != 'E01':
                     # Create new dataset
                     d = pd.DataFrame(columns=['Date', 'Team', 'Tour', 'Points'])
                     df['Date'] = pd.to_datetime(df['Date'], format='%d/%m/%y')
@@ -86,6 +92,9 @@ for root, dirs, files in os.walk("data/discovery"):
 
                     # Add column for the next position (the position of the next tour)
                     d['Next Position'] = d.apply(lambda row: next_position(d, row['Team'], row['Tour']), axis=1)
+
+                    # Add column for the next points (the points of the next tour)
+                    d['Next Points'] = d.apply(lambda row: next_points(d, row['Team'], row['Tour']), axis=1)
 
                     # Remove all except the tour, poins and position
                     d = d.drop(['Date', 'Team'], axis=1)
