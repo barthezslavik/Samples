@@ -1,40 +1,72 @@
-import xgboost as xgb
-import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
-from sklearn.preprocessing import LabelEncoder
 
-# Load the data
-train_data = pd.read_csv("data/titanic/train.csv")
-test_data = pd.read_csv("data/titanic/test.csv")
+# Read the data
+train = pd.read_csv("data/titanic/train.csv")
 
-columns = ['Pclass', 'Sex', 'SibSp', 'Parch', 'Embarked']
-le = LabelEncoder()
-columns = ['Sex', 'Embarked', 'ticket_type', 'cabin_type', 'title']
-
-for col in columns:
-    le.fit(train_data[col])
-    train_data[col] = le.transform(train_data[col])
-    
-train_data.head()
+# Drop NA values
+train = train.dropna()
 
 # Drop the columns that are not needed
-X = train_data.drop(['Survived'], axis=1)
-X_test = test_data.drop(['PassengerId'], axis=1)
+X = train.drop(['PassengerId', 'Survived', 'Name', 'Ticket', 'Cabin', 'Embarked'], axis=1)
+y = train['Survived']
 
-# Assign the input variables to X and the output variable to y
-y = train_data['Survived']
+replace_map = {'male':0, 'female':1}
+X = X.replace(replace_map)
 
-# split data into train and test set
-X_train, X_val, y_train, y_val = train_test_split(X, y, shuffle=False, test_size=0.3)
+# Split the data into train and test
+X_train, X_test, y_train, y_test = train_test_split(X, y, shuffle=False, test_size=0.3)
 
-# XGBoost model
+# Use neural network
+from sklearn.neural_network import MLPClassifier
+
+# Create a neural network
+mlp = MLPClassifier(hidden_layer_sizes=(10, 10, 10), max_iter=1000)
+
+# Train the model
+mlp.fit(X_train, y_train)
+
+# Predict the outcome
+y_pred = mlp.predict(X_test)
+
+print("Neural network model")
+
+# Accuracy score
+accuracy = accuracy_score(y_test, y_pred)
+print("Accuracy: {}".format(accuracy))
+
+# Merge predictions with original test data
+df = pd.DataFrame({'test': y_test, 'Survived': y_pred})
+
+# Use XGBoost
+import xgboost as xgb
+
+# Xgboost model
 xgb_model = xgb.XGBClassifier()
 xgb_model.fit(X_train, y_train)
-y_pred1 = xgb_model.predict(X_val)
+y_pred = xgb_model.predict(X_test)
 
-# Calculate accuracy for each of outcome
-for i in range(2):
-    accuracy = accuracy_score(y_val[y_val == i], y_pred1[y_val == i])
-    print("Accuracy for outcome {}: {}".format(i, accuracy))
+print("XGBoost model")
+
+# Accuracy score
+accuracy = accuracy_score(y_test, y_pred)
+print("Accuracy: {}".format(accuracy))
+
+# Logistic regression
+from sklearn.linear_model import LogisticRegression
+
+# Create a logistic regression model
+logreg = LogisticRegression()
+
+# Train the model
+logreg.fit(X_train, y_train)
+
+# Predict the outcome
+y_pred = logreg.predict(X_test)
+
+print("Logistic regression model")
+
+# Accuracy score
+accuracy = accuracy_score(y_test, y_pred)
+print("Accuracy: {}".format(accuracy))
