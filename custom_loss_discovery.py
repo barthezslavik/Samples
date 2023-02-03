@@ -8,8 +8,9 @@ from keras.callbacks import EarlyStopping, ModelCheckpoint
 import matplotlib.pyplot as plt
      
 def get_data():
-    data = pd.read_csv('data/good/extract-betsentiment-com.csv')
-    X = data.values[:, 2:-1]
+    data = pd.read_csv('data/good/discovery14.csv')
+    X = data.values[:, 4:-1]
+    print(X)
     y = data.values[:, -1]
     y_full = np.zeros((X.shape[0], 6))
     for i, y_i in enumerate(y):
