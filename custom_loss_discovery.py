@@ -11,12 +11,16 @@ def get_data():
     data = pd.read_csv('data/good/discovery14.csv')
     # Drop NA
     data = data.dropna()
+    # Get first 100 rows
+    data = data.iloc[:1000, :]
     # Add FTR column equal to 1 if home team wins, 2 if away team wins, 3 if draw
-    data['FTR'] = 0
-    data.loc[data['FTHG'] > data['FTAG'], 'FTR'] = 1
-    data.loc[data['FTHG'] < data['FTAG'], 'FTR'] = 2
-    data.loc[data['FTHG'] == data['FTAG'], 'FTR'] = 3
-    X = data.values[:, 4:-1]
+    # data['FTR'] = 0
+    # data.loc[data['FTHG'] > data['FTAG'], 'FTR'] = 1
+    # data.loc[data['FTHG'] < data['FTAG'], 'FTR'] = 2
+    # data.loc[data['FTHG'] == data['FTAG'], 'FTR'] = 3
+    # Save data to csv
+    # data.to_csv('data/good/discovery14.csv', index=False)
+    X = data.values[:, 0:-1]
     y = data.values[:, -1]
     y_full = np.zeros((X.shape[0], 6))
     for i, y_i in enumerate(y):
@@ -26,8 +30,8 @@ def get_data():
             y_full[i, 1] = 1.0 # win away team
         if y_i == 3:
             y_full[i, 2] = 1.0 # draw
-        y_full[i, 4] = X[i, 2] # odds a
-        y_full[i, 5] = X[i, 4] # odds b
+        y_full[i, 4] = X[i, 0] # odds a
+        y_full[i, 5] = X[i, 1] # odds b
     return X, y_full, y
 X, y, outcome = get_data()
 X = np.asarray(X).astype(np.float32)
@@ -84,7 +88,7 @@ def get_model(input_dim, output_dim, base=1000, multiplier=0.25, p=0.2):
     model.compile(optimizer='Nadam', loss=odds_loss)
     return model
 
-model = get_model(X.shape[1], 4, 2, 0.9, 0.7)
+model = get_model(X.shape[1], 4, 1000, 0.9, 0.7)
 history = model.fit(train_x, train_y, validation_data=(test_x, test_y),
           epochs=200, batch_size=5, callbacks=[EarlyStopping(patience=25),
                                                 ModelCheckpoint('data/models/odds_loss.hdf5',
