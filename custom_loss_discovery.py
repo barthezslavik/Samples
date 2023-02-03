@@ -12,7 +12,7 @@ def get_data():
     # Drop NA
     data = data.dropna()
     # Get first 100 rows
-    data = data.iloc[:1000, :]
+    # data = data.iloc[:1000, :]
     # Add FTR column equal to 1 if home team wins, 2 if away team wins, 3 if draw
     # data['FTR'] = 0
     # data.loc[data['FTHG'] > data['FTAG'], 'FTR'] = 1
@@ -20,7 +20,7 @@ def get_data():
     # data.loc[data['FTHG'] == data['FTAG'], 'FTR'] = 3
     # Save data to csv
     # data.to_csv('data/good/discovery14.csv', index=False)
-    X = data.values[:, 0:-1]
+    X = data.values[:, 4:-1]
     y = data.values[:, -1]
     y_full = np.zeros((X.shape[0], 6))
     for i, y_i in enumerate(y):
@@ -30,8 +30,8 @@ def get_data():
             y_full[i, 1] = 1.0 # win away team
         if y_i == 3:
             y_full[i, 2] = 1.0 # draw
-        y_full[i, 4] = X[i, 0] # odds a
-        y_full[i, 5] = X[i, 1] # odds b
+        y_full[i, 4] = X[i, 2] # odds a
+        y_full[i, 5] = X[i, 4] # odds b
     return X, y_full, y
 X, y, outcome = get_data()
 X = np.asarray(X).astype(np.float32)
