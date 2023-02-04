@@ -10,11 +10,13 @@ import os
      
 def get_data():
     data = pd.read_csv('data/good/fuzzy.csv')
+    # Drop D columns
+    # data = data.drop(['D'], axis=1)
     # Replace BL, SL, D, SW, BW with 1, 2, 3, 4, 5
     data = data.replace(['BL', 'SL', 'D', 'SW', 'BW'], [1, 2, 3, 4, 5])
     X = data.values[:, 3:-1]
     y = data.values[:, -1]
-    y_full = np.zeros((X.shape[0], 5))
+    y_full = np.zeros((X.shape[0], 6))
     for i, y_i in enumerate(y):
         if y_i == 4 or y_i == 5:
             y_full[i, 0] = 1.0 # win home team
@@ -22,8 +24,9 @@ def get_data():
             y_full[i, 1] = 1.0 # win away team
         if y_i == 3:
             y_full[i, 2] = 1.0 # draw
-        y_full[i, 3] = X[i, 2] # odds a
-        y_full[i, 4] = X[i, 4] # odds b
+        y_full[i, 3] = X[i, 1] # odds H
+        y_full[i, 4] = X[i, 2] # odds D
+        y_full[i, 5] = X[i, 3] # odds A
 
     return X, y_full, y
 X, y, outcome = get_data()
@@ -48,12 +51,13 @@ def odds_loss(y_true, y_pred):
     win_home_team = y_true[:, 0:1]
     win_away = y_true[:, 1:2]
     draw = y_true[:, 2:3]
-    odds_a = y_true[:, 3:4]
-    odds_b = y_true[:, 4:5]
-    gain_loss_vector = K.concatenate([win_home_team * (odds_a - 1) + (1 - win_home_team) * -1,
-                                      win_away * (odds_b - 1) + (1 - win_away) * -1,
-                                      draw * (1/(1 - 1/odds_a - 1/odds_b) - 1) + (1 - draw) * -1,
-                                      K.zeros_like(odds_a)], axis=1)
+    odds_H = y_true[:, 3:4]
+    odds_D = y_true[:, 4:5]
+    odds_A = y_true[:, 5:6]
+    gain_loss_vector = K.concatenate([win_home_team * (odds_H - 1) + (1 - win_home_team) * -1,
+                                      win_away * (odds_A - 1) + (1 - win_away) * -1,
+                                      draw * (odds_D - 1) + (1 - draw) * -1,
+                                      K.zeros_like(odds_H)], axis=1)
     return -1 * K.mean(K.sum(gain_loss_vector * y_pred, axis=1))
  
 
@@ -83,7 +87,10 @@ def get_model(input_dim, output_dim, base=1000, multiplier=0.25, p=0.2):
     return model
 
 # Remove 'data/models/odds_loss.hdf5' before running this cell
-os.remove('data/models/odds_loss.hdf5')
+try:
+    os.remove('data/models/odds_loss.hdf5')
+except:
+    pass
 
 model = get_model(X.shape[1], 4, 1000, 0.9, 0.7)
 history = model.fit(train_x, train_y, validation_data=(test_x, test_y),
@@ -96,9 +103,26 @@ print('Training Loss : {}\nValidation Loss : {}'.format(model.evaluate(train_x, 
 # Predict the test set
 y_pred = model.predict(test_x)
 
-# Round the predictions to the nearest integer
-y_pred = np.round(y_pred)
+# Profit
+def profit(y_true, y_pred):
+    win_home_team = y_true[:, 0:1]
+    win_away = y_true[:, 1:2]
+    draw = y_true[:, 2:3]
+    odds_H = y_true[:, 3:4]
+    odds_D = y_true[:, 4:5]
+    odds_A = y_true[:, 5:6]
+    gain_loss_vector = np.concatenate([win_home_team * (odds_H - 1) + (1 - win_home_team) * -1,
+                                      win_away * (odds_A - 1) + (1 - win_away) * -1,
+                                      draw * (odds_D - 1) + (1 - draw) * -1,
+                                      np.zeros_like(odds_H)], axis=1)
+    return np.sum(np.sum(gain_loss_vector * y_pred, axis=1))
 
-print(test_y)
+print('Profit : {}'.format(profit(test_y, y_pred)))
 
-print(y_pred)
+# plt.plot(history.history['loss'])
+# plt.plot(history.history['val_loss'])
+# plt.title('Model Loss')
+# plt.ylabel('Loss')
+# plt.xlabel('Epoch')
+# plt.legend(['Train', 'Test'], loc='upper left')
+# plt.show()

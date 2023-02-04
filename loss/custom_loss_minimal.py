@@ -77,7 +77,7 @@ def get_model(input_dim, output_dim, base=1000, multiplier=0.25, p=0.2):
     model.compile(optimizer='Nadam', loss=odds_loss)
     return model
 
-model = get_model(X.shape[1], 4, 1000, 0.9, 0.7)
+model = get_model(X.shape[1], 6, 1000, 0.9, 0.7)
 history = model.fit(train_x, train_y, validation_data=(test_x, test_y),
           epochs=200, batch_size=5, callbacks=[EarlyStopping(patience=25),
                                                 ModelCheckpoint('data/models/odds_loss.hdf5',

@@ -93,7 +93,7 @@ for root, dirs, files in os.walk("data/discovery"):
             # Get first row of the dataframe
             first_row = df.iloc[1]
             date = first_row['Date'].split('/')[2]
-            years = ['13', '2013', '14', '2014']
+            years = ['12', '2012', '13', '2013', '14', '2014']
             if date in years:
                 if first_row['Div'] == 'E0':
                     print(os.path.join(root, file))
