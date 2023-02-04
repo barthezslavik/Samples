@@ -6,6 +6,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 import matplotlib.pyplot as plt
+import os
      
 def get_data():
     data = pd.read_csv('data/good/fuzzy.csv')
@@ -81,6 +82,9 @@ def get_model(input_dim, output_dim, base=1000, multiplier=0.25, p=0.2):
     model.compile(optimizer='Nadam', loss=odds_loss)
     return model
 
+# Remove 'data/models/odds_loss.hdf5' before running this cell
+os.remove('data/models/odds_loss.hdf5')
+
 model = get_model(X.shape[1], 4, 1000, 0.9, 0.7)
 history = model.fit(train_x, train_y, validation_data=(test_x, test_y),
           epochs=200, batch_size=5, callbacks=[EarlyStopping(patience=25),
@@ -91,17 +95,8 @@ print('Training Loss : {}\nValidation Loss : {}'.format(model.evaluate(train_x, 
 
 # Predict the test set
 y_pred = model.predict(test_x)
-# Get the index of the highest probability
-y_pred = np.argmax(y_pred, axis=1)
-# Get the index of the highest probability
-y_test = np.argmax(test_y, axis=1)
-# Get the number of correct predictions
-correct = np.sum(y_pred == y_test)
-# Get the accuracy
-accuracy = correct / len(y_pred)
-print('Accuracy : {}'.format(accuracy))
 
-# Merge the predictions and the test set
-y_pred = np.concatenate([y_pred.reshape(-1, 1), y_test.reshape(-1, 1)], axis=1)
-# Save the predictions
-np.savetxt('data/predictions/odds_loss.csv', y_pred, delimiter=',')
+# Convert the predicted probabilities to class labels
+y_pred = np.argmax(y_pred, axis=1)
+
+print(y_pred)
