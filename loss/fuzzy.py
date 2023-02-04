@@ -104,7 +104,7 @@ for root, dirs, files in os.walk("data/discovery"):
 dfs = pd.concat(dfs)
 
 # Create new dataset
-d = pd.DataFrame(columns=['Date', 'Home', 'Away', 'Tour', 'Points', 'X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9', 'X10', 'X11', 'X12', 'Y'])
+d = pd.DataFrame(columns=['Date', 'Home', 'Away', 'Tour', 'Points', 'H', 'D', 'A', 'X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9', 'X10', 'X11', 'X12', 'Y'])
 dfs['Date'] = pd.to_datetime(dfs['Date'], format='%d/%m/%y')
 # For each team
 for match in dfs.iterrows():
@@ -123,13 +123,17 @@ for match in dfs.iterrows():
     head_to_head = get_last_2_head_to_head(dfs, home, away, date)
     # Result
     result = get_outcome_name(match[1]['FTHG'] - match[1]['FTAG'])
+    # Odds
+    h_odd = match[1]['B365H']
+    d_odd = match[1]['B365D']
+    a_odd = match[1]['B365A']
     # Create new row
     if (len(home_last_5) == 5) and (len(away_last_5) == 5) and (len(head_to_head) == 2):
-        new_row = pd.DataFrame([[date, home, away, home_points, 
+        new_row = pd.DataFrame([[date, home, away, home_points, h_odd, d_odd, a_odd,
                                 home_last_5[0], home_last_5[1], home_last_5[2], home_last_5[3], home_last_5[4], 
                                 away_last_5[0], away_last_5[1], away_last_5[2], away_last_5[3], away_last_5[4], 
                                 head_to_head[0], head_to_head[1], result]], 
-                                columns=['Date', 'Home', 'Away', 'Points', 'X1', 'X2', 'X3', 'X4', 'X5',
+                                columns=['Date', 'Home', 'Away', 'Points', 'H', 'D', 'A', 'X1', 'X2', 'X3', 'X4', 'X5',
                                         'X6', 'X7', 'X8', 'X9', 'X10', 'X11', 'X12', 'Y'])
         # Append the row to the dataset
         global_data.append(new_row)
