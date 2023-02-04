@@ -96,7 +96,9 @@ print('Training Loss : {}\nValidation Loss : {}'.format(model.evaluate(train_x, 
 # Predict the test set
 y_pred = model.predict(test_x)
 
-# Convert the predicted probabilities to class labels
-y_pred = np.argmax(y_pred, axis=1)
+# Round the predictions to the nearest integer
+y_pred = np.round(y_pred)
+
+print(test_y)
 
 print(y_pred)
