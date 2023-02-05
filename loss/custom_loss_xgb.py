@@ -24,11 +24,12 @@ data = data.replace(['BW', 'SW', 'D', 'SL', 'BL'], [0, 0, 1, 2, 2])
 X = data.drop(['Y','Date','Home','Away'], axis=1)
 y = data['Y']
 
+print(X.head())
+
 # Split data into training and test sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 # XGBoost model
-# model = xgb.XGBClassifier(objective='multi:softprob', num_class=3, tree_method='exact')
 model = xgb.XGBClassifier()
 
 # Fit the model
@@ -92,8 +93,11 @@ df.loc[(df['y_pred'] == 1) & (df['D'] < D_min), 'win'] = 0
 # Set win = 0 if y_pred = 2 and A < A_min
 df.loc[(df['y_pred'] == 2) & (df['A'] < A_min), 'win'] = 0
 
-# print(df.head(20))
-print(df.tail(50))
+print(df.tail(20))
+
+# Total matches
+total_matches = data.shape[0]
+print(f'Total matches: {total_matches}')
 
 # Drop rows where win == 0
 df = df[df['win'] != 0]

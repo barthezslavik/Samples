@@ -93,9 +93,9 @@ for root, dirs, files in os.walk("data/discovery"):
             # Get first row of the dataframe
             first_row = df.iloc[1]
             date = first_row['Date'].split('/')[2]
-            years = ['12', '2012', '13', '2013', '14', '2014']
+            years = ['13', '2013', '14', '2014']
             if date in years:
-                divs = ['E0', 'E1', 'E2', 'E3']
+                divs = ['E1', 'E2', 'E3']
                 if first_row['Div'] in divs:
                     # Merge the dataframes
                     dfs.append(df)
@@ -104,7 +104,7 @@ for root, dirs, files in os.walk("data/discovery"):
 dfs = pd.concat(dfs)
 
 # Create new dataset
-d = pd.DataFrame(columns=['Date', 'Home', 'Away', 'Tour', 'Points', 'H', 'D', 'A', 'X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9', 'X10', 'X11', 'X12', 'Y'])
+d = pd.DataFrame(columns=['Date', 'Home', 'Away', 'Tour', 'HomePoints', 'AwayPoints' 'H', 'D', 'A', 'X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9', 'X10', 'X11', 'X12', 'Y'])
 dfs['Date'] = pd.to_datetime(dfs['Date'], format='%d/%m/%y')
 # Sort the dataframe by date
 dfs = dfs.sort_values(by=['Date'])
@@ -133,11 +133,11 @@ for match in dfs.iterrows():
         a_odd = match[1]['B365A']
         # Create new row
         if (len(home_last_5) == 5) and (len(away_last_5) == 5) and (len(head_to_head) == 2):
-            new_row = pd.DataFrame([[date, home, away, home_points, h_odd, d_odd, a_odd,
+            new_row = pd.DataFrame([[date, home, away, home_points, away_points, h_odd, d_odd, a_odd,
                                     home_last_5[0], home_last_5[1], home_last_5[2], home_last_5[3], home_last_5[4], 
                                     away_last_5[0], away_last_5[1], away_last_5[2], away_last_5[3], away_last_5[4], 
                                     head_to_head[0], head_to_head[1], result]], 
-                                    columns=['Date', 'Home', 'Away', 'Points', 'H', 'D', 'A', 'X1', 'X2', 'X3', 'X4', 'X5',
+                                    columns=['Date', 'Home', 'Away', 'HomePoints', 'AwayPoints', 'H', 'D', 'A', 'X1', 'X2', 'X3', 'X4', 'X5',
                                             'X6', 'X7', 'X8', 'X9', 'X10', 'X11', 'X12', 'Y'])
             # Append the row to the dataset
             global_data.append(new_row)
