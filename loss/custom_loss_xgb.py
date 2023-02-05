@@ -7,13 +7,6 @@ import numpy as np
 import xgboost as xgb
 import numpy as np
 
-# Define the custom loss function
-def betting_profit_loss(y_true, y_pred, odds):
-    y_pred = 1.0 / (1.0 + np.exp(-y_pred))
-    y_pred = np.clip(y_pred, 1e-15, 1 - 1e-15)
-    loss = - (y_true * np.log(y_pred) * odds + (1 - y_true) * np.log(1 - y_pred) * odds)
-    return 'betting_profit', np.mean(loss), False
-
 # Read data
 data = pd.read_csv('data/good/fuzzy.csv')
 
