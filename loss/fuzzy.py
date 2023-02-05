@@ -95,8 +95,8 @@ for root, dirs, files in os.walk("data/discovery"):
             date = first_row['Date'].split('/')[2]
             years = ['12', '2012', '13', '2013', '14', '2014']
             if date in years:
-                if first_row['Div'] == 'E0':
-                    print(os.path.join(root, file))
+                divs = ['E0', 'E1', 'E2', 'E3']
+                if first_row['Div'] in divs:
                     # Merge the dataframes
                     dfs.append(df)
 
@@ -106,37 +106,47 @@ dfs = pd.concat(dfs)
 # Create new dataset
 d = pd.DataFrame(columns=['Date', 'Home', 'Away', 'Tour', 'Points', 'H', 'D', 'A', 'X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9', 'X10', 'X11', 'X12', 'Y'])
 dfs['Date'] = pd.to_datetime(dfs['Date'], format='%d/%m/%y')
+# Sort the dataframe by date
+dfs = dfs.sort_values(by=['Date'])
+
 # For each team
 for match in dfs.iterrows():
-    home = match[1]['HomeTeam']
-    away = match[1]['AwayTeam']
-    print(match[1]['Date'], home, '-', away)
-    # Get the date of the match
-    date = match[1]['Date']
-    # Points
-    home_points = get_points(dfs, home, date)
-    away_points = get_points(dfs, away, date)
-    # Last 5 matches
-    home_last_5 = get_last_5(dfs, home, date)
-    away_last_5 = get_last_5(dfs, away, date)
-    # Last 2 matches head to head
-    head_to_head = get_last_2_head_to_head(dfs, home, away, date)
-    # Result
-    result = get_outcome_name(match[1]['FTHG'] - match[1]['FTAG'])
-    # Odds
-    h_odd = match[1]['B365H']
-    d_odd = match[1]['B365D']
-    a_odd = match[1]['B365A']
-    # Create new row
-    if (len(home_last_5) == 5) and (len(away_last_5) == 5) and (len(head_to_head) == 2):
-        new_row = pd.DataFrame([[date, home, away, home_points, h_odd, d_odd, a_odd,
-                                home_last_5[0], home_last_5[1], home_last_5[2], home_last_5[3], home_last_5[4], 
-                                away_last_5[0], away_last_5[1], away_last_5[2], away_last_5[3], away_last_5[4], 
-                                head_to_head[0], head_to_head[1], result]], 
-                                columns=['Date', 'Home', 'Away', 'Points', 'H', 'D', 'A', 'X1', 'X2', 'X3', 'X4', 'X5',
-                                        'X6', 'X7', 'X8', 'X9', 'X10', 'X11', 'X12', 'Y'])
-        # Append the row to the dataset
-        global_data.append(new_row)
+    try:
+        home = match[1]['HomeTeam']
+        away = match[1]['AwayTeam']
+        print(match[1]['Date'], home, '-', away)
+        # Get the date of the match
+        date = match[1]['Date']
+        # Points
+        home_points = get_points(dfs, home, date)
+        away_points = get_points(dfs, away, date)
+        # Last 5 matches
+        home_last_5 = get_last_5(dfs, home, date)
+        away_last_5 = get_last_5(dfs, away, date)
+        # Last 2 matches head to head
+        head_to_head = get_last_2_head_to_head(dfs, home, away, date)
+        # Result
+        result = get_outcome_name(match[1]['FTHG'] - match[1]['FTAG'])
+        # Odds
+        h_odd = match[1]['B365H']
+        d_odd = match[1]['B365D']
+        a_odd = match[1]['B365A']
+        # Create new row
+        if (len(home_last_5) == 5) and (len(away_last_5) == 5) and (len(head_to_head) == 2):
+            new_row = pd.DataFrame([[date, home, away, home_points, h_odd, d_odd, a_odd,
+                                    home_last_5[0], home_last_5[1], home_last_5[2], home_last_5[3], home_last_5[4], 
+                                    away_last_5[0], away_last_5[1], away_last_5[2], away_last_5[3], away_last_5[4], 
+                                    head_to_head[0], head_to_head[1], result]], 
+                                    columns=['Date', 'Home', 'Away', 'Points', 'H', 'D', 'A', 'X1', 'X2', 'X3', 'X4', 'X5',
+                                            'X6', 'X7', 'X8', 'X9', 'X10', 'X11', 'X12', 'Y'])
+            # Append the row to the dataset
+            global_data.append(new_row)
+    except:
+        # Close if ctrl+c else pass
+        if KeyboardInterrupt:
+            break
+        else:
+            pass
 
 # Merge all the dataframes
 global_data = pd.concat(global_data)
