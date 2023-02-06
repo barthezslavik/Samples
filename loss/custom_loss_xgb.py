@@ -13,6 +13,9 @@ data = pd.read_csv('data/good/fuzzy.csv')
 # Replace BL, SL, D, SW, BW with 1, 2, 3, 4, 5
 data = data.replace(['BW', 'SW', 'D', 'SL', 'BL'], [0, 0, 1, 2, 2])
 
+# Replace E0, E1, E2 with 1, 2, 3
+data = data.replace(['E0', 'E1', 'E2'], [1, 2, 3])
+
 # Split data into features and labels
 X = data.drop(['Y','Date','Home','Away'], axis=1)
 y = data['Y']
@@ -20,7 +23,7 @@ y = data['Y']
 print(X.head())
 
 # Split data into training and test sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, random_state=42)
 
 # XGBoost model
 model = xgb.XGBClassifier()
