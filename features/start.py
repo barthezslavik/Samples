@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import GridSearchCV
 
 df = pd.read_csv("data/good/ft_df.csv")
-df = df.head(100)
+# df = df.head(100)
 
 #dropping columns one wouldn't have before an actual match
 cols_to_drop = ['season', 'match_name','date', 'home_team', 'away_team', 'home_score', 'away_score',
@@ -37,8 +37,10 @@ np.random.seed(101)
 X = df_dum.drop(columns = ['winner'], axis = 1)
 y = df_dum.winner.values
 
+test_size = 0.2
+
 #splitting into train and test set to check which model is the best one to work on
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = test_size)
 
 #scaling features
 scaler = MinMaxScaler()
@@ -62,7 +64,7 @@ rfe.fit(X, y)
 X_transformed = rfe.transform(X)
 
 np.random.seed(101)
-X_train, X_test, y_train, y_test = train_test_split(X_transformed,y, test_size = 0.2)
+X_train, X_test, y_train, y_test = train_test_split(X_transformed,y, test_size = test_size)
 
 X_train = scaler.fit_transform(X_train)
 X_test = scaler.fit_transform(X_test)
@@ -112,10 +114,11 @@ tpred_knn = knn.predict(X_test)
 
 #function to get winning odd value in simulation dataset
 def get_winning_odd(df):
+    udi = 0
     if df.winner == 2:
-        result = df.h_odd
+        result = df.h_odd + udi
     elif df.winner == 1:
-        result = df.a_odd
+        result = df.a_odd + udi
     else:
         result = df.d_odd
     return result
@@ -153,6 +156,12 @@ test_df.loc[test_df.winner != test_df.tpred_knn, 'knn_profit'] = -1
 
 # Save test_df to csv
 # test_df.to_csv('data/predictions/test_df.csv')
+
+# ROI
+print('Logistic Regression ROI: ', test_df.lr_profit.sum()/len(test_df))
+print('Random Forest ROI: ', test_df.rf_profit.sum()/len(test_df))
+print('Gradient Boost ROI: ', test_df.gb_profit.sum()/len(test_df))
+print('KNN ROI: ', test_df.knn_profit.sum()/len(test_df))
 
 # Plotting the results
 plt.figure(figsize=(10, 6))
