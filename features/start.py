@@ -1,21 +1,15 @@
 import pandas as pd
 import numpy as np
-import time
-from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import accuracy_score
-from sklearn.metrics import classification_report
 from sklearn.feature_selection import RFE
 import matplotlib.pyplot as plt
 from sklearn.model_selection import GridSearchCV
 
 df = pd.read_csv("data/good/ft_df.csv")
-# df = df.head(100)
+# df = df.head(300)
 
 #dropping columns one wouldn't have before an actual match
 cols_to_drop = ['season', 'match_name','date', 'home_team', 'away_team', 'home_score', 'away_score',
@@ -47,10 +41,6 @@ scaler = MinMaxScaler()
 
 X_train = scaler.fit_transform(X_train)
 X_test = scaler.fit_transform(X_test)
-
-#creating models variable to iterate through each model and print result
-models = [LogisticRegression(max_iter= 1000, multi_class = 'multinomial'),
-RandomForestClassifier(), GradientBoostingClassifier(), KNeighborsClassifier()]
 
 acc_results = []
 n_features = []
@@ -97,20 +87,11 @@ parameters = {'C': [0.001, 0.01, 0.1, 1, 10, 100, 1000],
 gs = GridSearchCV(clf, parameters, scoring='accuracy', cv=3)
 gs.fit(X_train,y_train)
 
-rf = RandomForestClassifier()
-rf.fit(X_train, y_train)
-
-gb = GradientBoostingClassifier()
-gb.fit(X_train, y_train)
-
-knn = KNeighborsClassifier()
-knn.fit(X_train, y_train)
-
 #testing models on unseen data 
 tpred_lr = gs.best_estimator_.predict(X_test)
-tpred_rf = rf.predict(X_test)
-tpred_gb = gb.predict(X_test)
-tpred_knn = knn.predict(X_test)
+
+# Accuracy
+print("Logistic Regression Accuracy: ", accuracy_score(y_test, tpred_lr))
 
 #function to get winning odd value in simulation dataset
 def get_winning_odd(df):
@@ -127,9 +108,7 @@ def get_winning_odd(df):
 test_df = pd.DataFrame(scaler.inverse_transform(X_test),columns =  featured_columns)
 
 test_df['tpred_lr'] = tpred_lr
-test_df['tpred_rf'] = tpred_rf
-test_df['tpred_gb'] = tpred_gb
-test_df['tpred_knn'] = tpred_knn
+# Set to tpred_knn if equal to tpred_lr
 test_df['winner'] = y_test
 
 # Append h_odd if not in featured_columns
@@ -147,28 +126,16 @@ test_df['winning_odd'] = test_df.apply(lambda x: get_winning_odd(x), axis = 1)
 
 test_df['lr_profit'] = test_df.winning_odd - 1
 test_df.loc[test_df.winner != test_df.tpred_lr, 'lr_profit'] = -1
-test_df['rf_profit'] = test_df.winning_odd - 1
-test_df.loc[test_df.winner != test_df.tpred_rf, 'rf_profit'] = -1
-test_df['gb_profit'] = test_df.winning_odd - 1
-test_df.loc[test_df.winner != test_df.tpred_gb, 'gb_profit'] = -1
-test_df['knn_profit'] = test_df.winning_odd - 1
-test_df.loc[test_df.winner != test_df.tpred_knn, 'knn_profit'] = -1
-
-# Save test_df to csv
-# test_df.to_csv('data/predictions/test_df.csv')
 
 # ROI
 print('Logistic Regression ROI: ', test_df.lr_profit.sum()/len(test_df))
-print('Random Forest ROI: ', test_df.rf_profit.sum()/len(test_df))
-print('Gradient Boost ROI: ', test_df.gb_profit.sum()/len(test_df))
-print('KNN ROI: ', test_df.knn_profit.sum()/len(test_df))
 
 # Plotting the results
 plt.figure(figsize=(10, 6))
-plt.plot(test_df.lr_profit.cumsum(), label='Logistic Regression')
-plt.plot(test_df.rf_profit.cumsum(), label='Random Forest')
-plt.plot(test_df.gb_profit.cumsum(), label='Gradient Boost')
-plt.plot(test_df.knn_profit.cumsum(), label='KNN')
+# plt.plot(test_df.lr_profit.cumsum(), label='Logistic Regression')
+
+# Add regression line
+plt.plot(np.poly1d(np.polyfit(range(len(test_df)), test_df.lr_profit.cumsum(), 1))(range(len(test_df))), label='Logistic Regression Regression Line')
 plt.legend()
 plt.title('Profit Curve')
 plt.xlabel('Number of bets')
