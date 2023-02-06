@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import GridSearchCV
 
 df = pd.read_csv("data/good/ft_df.csv")
-df = df.head(300)
+df = df.head(100)
 
 #dropping columns one wouldn't have before an actual match
 cols_to_drop = ['season', 'match_name','date', 'home_team', 'away_team', 'home_score', 'away_score',
@@ -50,46 +50,11 @@ X_test = scaler.fit_transform(X_test)
 models = [LogisticRegression(max_iter= 1000, multi_class = 'multinomial'),
 RandomForestClassifier(), GradientBoostingClassifier(), KNeighborsClassifier()]
 
-names = ['Logistic Regression', 'Random Forest', 'Gradient Boost', 'KNN']
-
-#loop through each model and print train score and elapsed time
-for model, name in zip(models, names):
-    start = time.time()
-    scores = cross_val_score(model, X_train, y_train ,scoring= 'accuracy', cv=5)
-    print(name, ":", "%0.3f, +- %0.3f" % (scores.mean(), scores.std()), " - Elapsed time: ", time.time() - start)
-
-
-#Creating loop to test which set of features is the best one for Logistic Regression
-
 acc_results = []
 n_features = []
 
 #best classifier on training data
 clf = LogisticRegression(max_iter = 1000, multi_class = 'multinomial')
-
-for i in range(5, 5):
-    rfe = RFE(estimator = clf, n_features_to_select = i, step=1)
-    rfe.fit(X, y)
-    X_temp = rfe.transform(X)
-
-    np.random.seed(101)
-
-    X_train, X_test, y_train, y_test = train_test_split(X_temp,y, test_size = 0.2)
-
-    X_train = scaler.fit_transform(X_train)
-    X_test = scaler.fit_transform(X_test)
-
-    start = time.time()
-    scores = cross_val_score(clf, X_train, y_train ,scoring= 'accuracy', cv=5)
-    print(" Clf result :", "%0.3f, +- %0.3f" % (scores.mean(), scores.std()), 'N_features :', i)
-    acc_results.append(scores.mean())
-    n_features.append(i)
-
-# plt.plot(n_features, acc_results)
-# plt.ylabel('Accuracy')
-# plt.xlabel('N features')
-# plt.show()
-
 
 #getting the best 13 features from RFE
 rfe = RFE(estimator = clf, n_features_to_select = 13, step=1)
@@ -128,11 +93,7 @@ parameters = {'C': [0.001, 0.01, 0.1, 1, 10, 100, 1000],
  'fit_intercept': (True, False), 'solver' : ('newton-cg', 'sag', 'saga', 'lbfgs'), 'class_weight' : (None, 'balanced')}
 
 gs = GridSearchCV(clf, parameters, scoring='accuracy', cv=3)
-start = time.time()
-
-#printing best fits and time elapsed
 gs.fit(X_train,y_train)
-print(gs.best_score_, gs.best_params_,  time.time() - start)
 
 rf = RandomForestClassifier()
 rf.fit(X_train, y_train)
@@ -143,17 +104,11 @@ gb.fit(X_train, y_train)
 knn = KNeighborsClassifier()
 knn.fit(X_train, y_train)
 
-
 #testing models on unseen data 
 tpred_lr = gs.best_estimator_.predict(X_test)
 tpred_rf = rf.predict(X_test)
 tpred_gb = gb.predict(X_test)
 tpred_knn = knn.predict(X_test)
-
-# print(classification_report(y_test, tpred_lr, digits = 3))
-# print(classification_report(y_test, tpred_rf, digits = 3))
-# print(classification_report(y_test, tpred_gb, digits = 3))
-# print(classification_report(y_test, tpred_knn, digits = 3))
 
 #function to get winning odd value in simulation dataset
 def get_winning_odd(df):
@@ -172,16 +127,7 @@ test_df['tpred_lr'] = tpred_lr
 test_df['tpred_rf'] = tpred_rf
 test_df['tpred_gb'] = tpred_gb
 test_df['tpred_knn'] = tpred_knn
-
 test_df['winner'] = y_test
-
-# Save test_df to csv
-# test_df.to_csv('data/predictions/test_df.csv', index=False)
-
-print('Accuracy of tpred_lr to winner', (test_df.tpred_lr == test_df.winner).sum() / len(test_df))
-print('Accuracy of tpred_rf to winner', (test_df.tpred_rf == test_df.winner).sum() / len(test_df))
-print('Accuracy of tpred_gb to winner', (test_df.tpred_gb == test_df.winner).sum() / len(test_df))
-print('Accuracy of tpred_knn to winner', (test_df.tpred_knn == test_df.winner).sum() / len(test_df))
 
 # Append h_odd if not in featured_columns
 if 'h_odd' not in featured_columns:
@@ -196,16 +142,17 @@ if 'd_odd' not in featured_columns:
 
 test_df['winning_odd'] = test_df.apply(lambda x: get_winning_odd(x), axis = 1)
 
-test_df['lr_profit'] = test_df.winning_odd
+test_df['lr_profit'] = test_df.winning_odd - 1
 test_df.loc[test_df.winner != test_df.tpred_lr, 'lr_profit'] = -1
-test_df['rf_profit'] = test_df.winning_odd
+test_df['rf_profit'] = test_df.winning_odd - 1
 test_df.loc[test_df.winner != test_df.tpred_rf, 'rf_profit'] = -1
-test_df['gb_profit'] = test_df.winning_odd
+test_df['gb_profit'] = test_df.winning_odd - 1
 test_df.loc[test_df.winner != test_df.tpred_gb, 'gb_profit'] = -1
-test_df['knn_profit'] = test_df.winning_odd
+test_df['knn_profit'] = test_df.winning_odd - 1
 test_df.loc[test_df.winner != test_df.tpred_knn, 'knn_profit'] = -1
 
-print(test_df.head(50))
+# Save test_df to csv
+# test_df.to_csv('data/predictions/test_df.csv')
 
 # Plotting the results
 plt.figure(figsize=(10, 6))
