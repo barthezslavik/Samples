@@ -105,8 +105,9 @@ test_df = test_df[test_df.d_odd != 0]
 test_df = test_df[test_df.a_odd != 0]
 
 # Drop where h_odd
-# test_df = test_df[~((test_df.h_odd < 3) & (test_df.prediction == 2))]
+# test_df = test_df[~((test_df.h_odd < 2.1) & (test_df.prediction == 2))]
 test_df = test_df[~((test_df.h_odd < 2.1) & (test_df.prediction == 2))]
+test_df = test_df[~((test_df.h_odd > 3.5) & (test_df.prediction == 2))]
 
 print("Total bets: ", len(test_df))
 
@@ -114,7 +115,6 @@ test_df['winning_odd'] = test_df.apply(lambda x: get_winning_odd(x), axis = 1)
 
 test_df['profit'] = test_df.winning_odd - 1
 test_df.loc[test_df.winner != test_df.prediction, 'profit'] = -1
-
 
 # New dataset
 h_df = test_df[test_df.prediction == 2]
@@ -131,7 +131,7 @@ h_df.to_csv("data/good/ft_winner_a_test.csv", index=False)
 print('Logistic Regression Profit: ', test_df.profit.sum())
 
 # Sort by profit
-test_df.sort_values(by=['profit'], inplace=True, ascending=False)
+# test_df.sort_values(by=['profit'], inplace=True, ascending=False)
 
 # Save to csv
 test_df.to_csv("data/good/ft_winner_test.csv", index=False)
@@ -147,17 +147,5 @@ print('Logistic Regression ROI: ', test_df.profit.sum()/len(test_df))
 for i in range(3):
     print("ROI for prediction {}: {}".format(i, test_df[test_df.prediction == i].profit.sum()/len(test_df[test_df.prediction == i])))
 
-# # Plot distribution of h_odd and prediction == 2
-# test_df[(test_df.prediction == 2) & (test_df.winner == 2)].h_odd.hist()
-# test_df[(test_df.prediction == 2) & (test_df.winner != 2)].h_odd.hist()
-
-# # Plot distribution of h_odd and prediction == 1
-# test_df[(test_df.prediction == 1) & (test_df.winner == 1)].a_odd.hist()
-# test_df[(test_df.prediction == 1) & (test_df.winner != 1)].a_odd.hist()
-
-# Plotting profit over time
-
-
-# test_df['profit_cumsum'] = test_df.profit.cumsum()
-# test_df['profit_cumsum'].plot()
-# plt.show()
+# Save to csv
+test_df.to_csv("data/good/ft_winner_test.csv", index=False)
