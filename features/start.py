@@ -105,9 +105,7 @@ test_df = test_df[test_df.d_odd != 0]
 test_df = test_df[test_df.a_odd != 0]
 
 # Drop where h_odd
-# test_df = test_df[~((test_df.h_odd < 2.1) & (test_df.prediction == 2))]
 test_df = test_df[~((test_df.h_odd < 2.1) & (test_df.prediction == 2))]
-test_df = test_df[~((test_df.h_odd > 3.5) & (test_df.prediction == 2))]
 
 print("Total bets: ", len(test_df))
 
