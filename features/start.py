@@ -106,7 +106,7 @@ test_df = test_df[test_df.a_odd != 0]
 
 # Drop where h_odd
 # test_df = test_df[~((test_df.h_odd < 3) & (test_df.prediction == 2))]
-# test_df = test_df[~((test_df.h_odd < 2.1) & (test_df.prediction == 2))]
+test_df = test_df[~((test_df.h_odd < 2.1) & (test_df.prediction == 2))]
 
 print("Total bets: ", len(test_df))
 
@@ -120,6 +120,11 @@ test_df.loc[test_df.winner != test_df.prediction, 'profit'] = -1
 h_df = test_df[test_df.prediction == 2]
 # Save to csv
 h_df.to_csv("data/good/ft_winner_h_test.csv", index=False)
+
+# New dataset
+h_df = test_df[test_df.prediction == 1]
+# Save to csv
+h_df.to_csv("data/good/ft_winner_a_test.csv", index=False)
 
 
 # Profit
