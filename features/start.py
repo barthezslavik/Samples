@@ -8,11 +8,11 @@ from sklearn.feature_selection import RFE
 import matplotlib.pyplot as plt
 from sklearn.model_selection import GridSearchCV
 
-limit = 1000
+limit = 3000
 test_size = 0.5
 
 df = pd.read_csv("data/good/ft_df.csv")
-df = df.head(limit); print("Limit: ", limit)
+# df = df.head(limit); print("Limit: ", limit)
 
 #dropping columns one wouldn't have before an actual match
 cols_to_drop = ['season', 'match_name','date', 'home_team', 'away_team', 
@@ -95,24 +95,29 @@ test_df['prediction'] = prediction
 # Set to tpred_knn if equal to prediction
 test_df['winner'] = y_test
 
-# Append h_odd if not in featured_columns
-# if 'h_odd' not in featured_columns:
-#     # Merge h_odd to test_df
-#     test_df = test_df.merge(df[['h_odd']], left_index=True, right_index=True)
-# if 'a_odd' not in featured_columns:
-#     # Merge a_odd to test_df
-#     test_df = test_df.merge(df[['a_odd']], left_index=True, right_index=True)
-# if 'd_odd' not in featured_columns:
-#     # Merge d_odd to test_df
-#     test_df = test_df.merge(df[['d_odd']], left_index=True, right_index=True)
+print("Total matches: ", len(test_df))
 
-# print(test_df.head(10))
+# Drop where prediction == 0
+test_df = test_df[test_df.prediction != 0]
+
+# Drop all where h_odd == 0 or a_odd == 0 or d_odd == 0
+test_df = test_df[test_df.h_odd != 0]
+test_df = test_df[test_df.d_odd != 0]
+test_df = test_df[test_df.a_odd != 0]
+
+# Drop where h_odd > 2.5 and prediction < 2
+test_df = test_df[~((test_df.h_odd < 2.1) & (test_df.prediction == 2))]
+
+print("Total bets: ", len(test_df))
 
 # Plot distribution of h_odd and prediction == 2 and winner == 2 # < 4.7
-# test_df[(test_df.prediction == 2) & (test_df.winner == 2)].h_odd.hist()
+test_df[(test_df.prediction == 2) & (test_df.winner == 2)].h_odd.hist()
+
+# Plot distribution of h_odd and prediction == 2 and winner != 2 # < 4.7
+test_df[(test_df.prediction == 2) & (test_df.winner != 2)].h_odd.hist()
 
 # Plot distribution of a_odd and prediction == 1 and winner == 1
-# test_df[(test_df.prediction == 1) & (test_df.winner == 1)].a_odd.hist() # < 12.5
+# test_df[(test_df.prediction == 1) & (test_df.winner != 1)].a_odd.hist() # < 12.5
 
 # Plot distribution of d_odd and prediction == 0 and winner == 0
 # test_df[(test_df.prediction == 0) & (test_df.winner == 0)].d_odd.hist() # < 3.45
@@ -125,17 +130,34 @@ test_df['winning_odd'] = test_df.apply(lambda x: get_winning_odd(x), axis = 1)
 test_df['profit'] = test_df.winning_odd - 1
 test_df.loc[test_df.winner != test_df.prediction, 'profit'] = -1
 
+# Profit
+print('Logistic Regression Profit: ', test_df.profit.sum())
+
+# Sort by profit
+test_df.sort_values(by=['profit'], inplace=True, ascending=False)
+
+# Save to csv
+test_df.to_csv("data/good/ft_winner_test.csv", index=False)
+
+# Total amount of each prediction
+for i in range(3):
+    print("Total amount of prediction {}: {}".format(i, len(test_df[test_df.prediction == i])))
+
 # ROI
 print('Logistic Regression ROI: ', test_df.profit.sum()/len(test_df))
 
-# Plotting the results
-plt.figure(figsize=(10, 6))
-plt.plot(test_df.profit.cumsum(), label='Logistic Regression')
+# ROI for each prediction
+for i in range(3):
+    print("ROI for prediction {}: {}".format(i, test_df[test_df.prediction == i].profit.sum()/len(test_df[test_df.prediction == i])))
 
-# Add regression line
-# plt.plot(np.poly1d(np.polyfit(range(len(test_df)), test_df.profit.cumsum(), 1))(range(len(test_df))), label='Logistic Regression Regression Line')
-plt.legend()
-plt.title('Profit Curve')
-plt.xlabel('Number of bets')
-plt.ylabel('Profit')
-# plt.show()
+# # Plotting the results
+# plt.figure(figsize=(10, 6))
+# plt.plot(test_df.profit.cumsum(), label='Logistic Regression')
+
+# # Add regression line
+# # plt.plot(np.poly1d(np.polyfit(range(len(test_df)), test_df.profit.cumsum(), 1))(range(len(test_df))), label='Logistic Regression Regression Line')
+# plt.legend()
+# plt.title('Profit Curve')
+# plt.xlabel('Number of bets')
+# plt.ylabel('Profit')
+plt.show()
