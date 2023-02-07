@@ -92,43 +92,35 @@ def get_winning_odd(df):
 test_df = pd.DataFrame(scaler.inverse_transform(X_test),columns =  featured_columns)
 
 test_df['prediction'] = prediction
-# Set to tpred_knn if equal to prediction
 test_df['winner'] = y_test
 
 print("Total matches: ", len(test_df))
 
-# Drop where prediction == 0
+# Drop draws
 test_df = test_df[test_df.prediction != 0]
 
-# Drop all where h_odd == 0 or a_odd == 0 or d_odd == 0
+# Drop zero odds
 test_df = test_df[test_df.h_odd != 0]
 test_df = test_df[test_df.d_odd != 0]
 test_df = test_df[test_df.a_odd != 0]
 
-# Drop where h_odd > 2.5 and prediction < 2
-test_df = test_df[~((test_df.h_odd < 2.1) & (test_df.prediction == 2))]
+# Drop where h_odd
+# test_df = test_df[~((test_df.h_odd < 3) & (test_df.prediction == 2))]
+# test_df = test_df[~((test_df.h_odd < 2.1) & (test_df.prediction == 2))]
 
 print("Total bets: ", len(test_df))
-
-# Plot distribution of h_odd and prediction == 2 and winner == 2 # < 4.7
-test_df[(test_df.prediction == 2) & (test_df.winner == 2)].h_odd.hist()
-
-# Plot distribution of h_odd and prediction == 2 and winner != 2 # < 4.7
-test_df[(test_df.prediction == 2) & (test_df.winner != 2)].h_odd.hist()
-
-# Plot distribution of a_odd and prediction == 1 and winner == 1
-# test_df[(test_df.prediction == 1) & (test_df.winner != 1)].a_odd.hist() # < 12.5
-
-# Plot distribution of d_odd and prediction == 0 and winner == 0
-# test_df[(test_df.prediction == 0) & (test_df.winner == 0)].d_odd.hist() # < 3.45
-
-# Drop rows if prediction == 2 and h_odd > 4.7    
-# test_df.drop(test_df[(test_df.prediction == 2) & (test_df.h_odd > 4.7)].index, inplace=True)
 
 test_df['winning_odd'] = test_df.apply(lambda x: get_winning_odd(x), axis = 1)
 
 test_df['profit'] = test_df.winning_odd - 1
 test_df.loc[test_df.winner != test_df.prediction, 'profit'] = -1
+
+
+# New dataset
+h_df = test_df[test_df.prediction == 2]
+# Save to csv
+h_df.to_csv("data/good/ft_winner_h_test.csv", index=False)
+
 
 # Profit
 print('Logistic Regression Profit: ', test_df.profit.sum())
@@ -150,14 +142,17 @@ print('Logistic Regression ROI: ', test_df.profit.sum()/len(test_df))
 for i in range(3):
     print("ROI for prediction {}: {}".format(i, test_df[test_df.prediction == i].profit.sum()/len(test_df[test_df.prediction == i])))
 
-# # Plotting the results
-# plt.figure(figsize=(10, 6))
-# plt.plot(test_df.profit.cumsum(), label='Logistic Regression')
+# # Plot distribution of h_odd and prediction == 2
+# test_df[(test_df.prediction == 2) & (test_df.winner == 2)].h_odd.hist()
+# test_df[(test_df.prediction == 2) & (test_df.winner != 2)].h_odd.hist()
 
-# # Add regression line
-# # plt.plot(np.poly1d(np.polyfit(range(len(test_df)), test_df.profit.cumsum(), 1))(range(len(test_df))), label='Logistic Regression Regression Line')
-# plt.legend()
-# plt.title('Profit Curve')
-# plt.xlabel('Number of bets')
-# plt.ylabel('Profit')
-plt.show()
+# # Plot distribution of h_odd and prediction == 1
+# test_df[(test_df.prediction == 1) & (test_df.winner == 1)].a_odd.hist()
+# test_df[(test_df.prediction == 1) & (test_df.winner != 1)].a_odd.hist()
+
+# Plotting profit over time
+
+
+# test_df['profit_cumsum'] = test_df.profit.cumsum()
+# test_df['profit_cumsum'].plot()
+# plt.show()
